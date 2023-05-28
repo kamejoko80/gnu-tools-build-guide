@@ -1,4 +1,4 @@
-# Build arm-none-eabi gnu toolchains using windows WSL unbuntu 22.04:
+# Build arm-none-eabi gnu toolchains using windows WSL unbuntu 22.04 (Note: build error)
 
 ## 1) Download source tarballs:
 
