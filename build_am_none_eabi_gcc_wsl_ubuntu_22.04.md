@@ -1,9 +1,12 @@
-# Build arm-none-eabi gnu toolchains using windows WSL unbuntu 22.04 (Note: build error)
+# Build arm-none-eabi gnu toolchains using windows WSL unbuntu 22.04 (Successfully)
 
-## 1) Download source tarballs:
+# 1.0) Prepare the source code:
+
+## 1.1) Download source tarballs:
 
 ```
-   $ mkdir -p build/install_dir
+   $ mkdir -p build/install_windows_dir
+   $ mkdir -p build/install_linux_dir
    $ cd build
 
    wget https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz
@@ -15,37 +18,113 @@
    wget https://ftp.gnu.org/gnu/gdb/gdb-13.1.tar.gz
 ```
 
-## 2) Extract all source files: 
+## 1.2) Extract all source files:
 
 ```
-   tar -xvf gmp-6.2.1.tar.bz2
-   tar -xvf mpfr-4.2.0.tar.bz2
-   tar -xvf mpc-1.3.1.tar.gz
-   tar -xvf binutils-2.40.tar.bz2 
-   tar -xvf gcc-13.1.0.tar.gz
-   tar -xvf newlib-4.3.0.20230120.tar.gz 
-   tar -xvf gdb-13.1.tar.gz
+   $ tar -xvf gmp-6.2.1.tar.bz2
+   $ tar -xvf mpfr-4.2.0.tar.bz2
+   $ tar -xvf mpc-1.3.1.tar.gz
+   $ tar -xvf binutils-2.40.tar.bz2
+   $ tar -xvf gcc-13.1.0.tar.gz
+   $ tar -xvf newlib-4.3.0.20230120.tar.gz
+   $ tar -xvf gdb-13.1.tar.gz
+
+   $ mkdir gmp-6.2.1-build
+   $ mkdir mpfr-4.2.0-build
+   $ mkdir mpc-1.3.1-build
+   $ mkdir binutils-2.40-build
+   $ mkdir gcc-13.1.0-build
+   $ mkdir newlib-4.3.0.20230120-build
+   $ mkdir gdb-13.1-build
 ```
 
-## 3) Install mingw cross toolchain on Linux:
-   
-```   
+# 2.0) Build toolchains for Linux host:
+
+Because the toolchains executable files are built for windows, we need a toolchains that run on Linux host so that
+the mingw cross compiler can compile the target libraries.
+
+## 2.1) Define Linux host build environment variables:
+
+```
+   $ cd build/install_linux_dir
+   $ export INSTALL_DIR=$PWD
+   $ export PATH=$PATH:$INSTALL_DIR/bin
+   $ export TARGET=arm-none-eabi
+   $ cd ../
+```
+
+## 2.2) Compile gmp:
+
+```
+    $ mkdir gmp-6.2.1-build
+    $ cd gmp-6.2.1-build
+    $ ../gmp-6.2.1/configure --prefix=$INSTALL_DIR --enable-fft --enable-cxx --disable-shared --enable-static
+    $ make -j8
+    $ make install
+```
+
+## 2.3) Compile mpfr:
+
+```
+    $ mkdir mpfr-4.2.0-build
+    $ cd mpfr-4.2.0-build
+    $ ../mpfr-4.2.0/configure --prefix=$INSTALL_DIR --with-gmp=$INSTALL_DIR --disable-shared --enable-static
+    $ make -j8
+    $ make install
+```
+
+## 2.4) Compile mpc:
+
+```
+    $ mkdir mpc-1.3.1-build
+    $ cd mpc-1.3.1-build
+    $ ../mpc-1.3.1/configure --prefix=$INSTALL_DIR --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --disable-shared --enable-static
+    $ make -j8
+    $ make install
+```
+
+## 2.5) Compile binutils:
+
+```
+    $ mkdir binutils-2.40-build
+    $ cd binutils-2.40-build
+    $ ../binutils-2.40/configure --prefix=$INSTALL_DIR --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR
+    $ make -j8
+    $ make install-strip
+```
+
+## 2.6) Compile gcc:
+
+```
+    $ mkdir gcc-13.1.0-build
+    $ cd gcc-13.1.0-build
+    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --with-headers=../newlib-4.3.0.20230120/newlib/libc/include
+    $ make -j8
+    $ make install-strip
+ ```
+
+# 3.0) Build toolchains for Windows host:
+
+## 3.1) Install mingw cross toolchain on Linux:
+
+```
     $ sudo apt-get install mingw-w64
+    $ sudo apt-get install ... (other dependencies)
 ```
 
-## 4) Export environment variables:
+## 3.3) Define Windows host build environment variables:
 
 ```
-    $ export BUILD=x86_64-pc-linux-gnu
-    $ export HOST=x86_64-w64-mingw32
-    $ export TARGET=arm-none-eabi
-    $ export INSTALL_DIR=/home/phuong/Workspace/arm_toolchains/build/install_dir # Note: it must be absolute path, not relative path
-    $ export PATH=$PATH:$INSTALL_DIR/bin # When binutil is available, this is nessesary for building gcc, newlib...
-    $ export CC=x86_64-w64-mingw32-gcc
-    $ export CC_FOR_BUILD=x86_64-linux-gnu-gcc
+   $ cd build/install_windows_dir
+   $ export INSTALL_DIR=$PWD
+   $ export BUILD=x86_64-pc-linux-gnu
+   $ export HOST=x86_64-w64-mingw32
+   $ export TARGET=arm-none-eabi
+   $ export CC=x86_64-w64-mingw32-gcc
+   $ export CC_FOR_BUILD=x86_64-linux-gnu-gcc
 ```
 
-## 5) Compile gmp:
+## 3.4) Compile gmp:
 
 ```
     $ mkdir gmp-6.2.1-build
@@ -55,7 +134,7 @@
     $ make install
 ```
 
-## 6) Compile mpfr:
+## 3.5) Compile mpfr:
 
 ```
     $ mkdir mpfr-4.2.0-build
@@ -65,7 +144,7 @@
     $ make install
 ```
 
-7) Compile mpc:
+## 3.6) Compile mpc:
 
 ```
     $ mkdir mpc-1.3.1-build
@@ -75,50 +154,21 @@
     $ make install
 ```
 
-## 8) Compile binutils:
+## 3.7) Compile binutils:
 
 ```
-    $ mkdir binutils-2.40-build    
+    $ mkdir binutils-2.40-build
     $ cd binutils-2.40-build
     $ ../binutils-2.40/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR
     $ make -j8
-    $ make install-strip    
-   
-    The "install-strip" option is similar to "install", but it will remove debugging information from the binaries.
-    Unless you want to debug the toolchain itself, always use it to save disk space.   
+    $ make install-strip
 ```
 
-## 9) Compile gcc:
-
-```
-    $ mkdir gcc-13.1.0-build
-    $ cd gcc-13.1.0-build
-    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --with-headers=../newlib-4.3.0.20230120/newlib/libc/include
-    $ make -j8
-    $ make install-strip     
-    
-    When build this error message display:
-    
-    $ /bin/bash: line 1: arm-none-eabi-gcc: command not found
-    
-    Temporally install: 
-    
-    $ sudo apt install gcc-arm-none-eabi
-    $ whereis arm-none-eabi-gcc
-    $ arm-none-eabi-gcc: /usr/bin/arm-none-eabi-gcc
-    
-    Make mirror of arm-none-eabi-gcc as arm-none-eabi-cc
-    
-    $ sudo cp /usr/bin/arm-none-eabi-gcc /usr/bin/arm-none-eabi-cc
-    $ whereis arm-none-eabi-cc
-    $ arm-none-eabi-cc: /usr/bin/arm-none-eabi-cc
- ```   
-    
-## 10) Compile newlib:
+## 3.8) Compile newlib:
 
 ```
     $ cd newlib-build
-    $ ../newlib-4.3.0.20230120/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --disable-newlib-supplied-syscalls  
+    $ ../newlib-4.3.0.20230120/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --disable-newlib-supplied-syscalls
     $ make -j8
     $ make install
 
@@ -128,7 +178,7 @@
     the “libc.a” archive in the newlib directory is the one I use.
 ```
 
-## 11) Now that C-Libraries (newlib) is cross-compiled successfully, it's time to add its support to the earlier build gcc compiler to complete it.
+## 3.9) Compile gcc:
 
 ```
     $ mkdir gcc-13.1.0-build
@@ -136,15 +186,15 @@
     $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --with-headers=../newlib-4.3.0.20230120/newlib/libc/include
     $ make -j8
     $ make install-strip
-```
+ ```
 
-## 12) Build gdb:
-   
-```   
+## 3.10) Build gdb:
+
+```
     $ cd gdb-13.1-build
-    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET
+    $ ../gdb-13.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET
     $ make -j8
-    $ make install     
+    $ make install
 ```
 
 # Reference:
