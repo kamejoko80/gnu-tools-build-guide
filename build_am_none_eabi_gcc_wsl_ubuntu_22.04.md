@@ -218,7 +218,7 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
 
 ```
     $ cd gdb-13.1-build
-    $ ../gdb-13.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-expat=$XPAT_INSTALL
+    $ ../gdb-13.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-mpfr=$INSTALL_DIR --with-expat=$XPAT_INSTALL
     $ make all -j8
     $ make install
 ```
