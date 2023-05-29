@@ -109,6 +109,8 @@ the mingw cross compiler can compile the target libraries.
 
 ```
     $ sudo apt-get install mingw-w64
+    $ sudo apt-get install libexpat1-dev
+    $ sudo apt-get install expat    
     $ sudo apt-get install ... (other dependencies)
 ```
 
@@ -192,7 +194,7 @@ the mingw cross compiler can compile the target libraries.
 
 ```
     $ cd gdb-13.1-build
-    $ ../gdb-13.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET
+    $ ../gdb-13.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-expat
     $ make -j8
     $ make install
 ```
