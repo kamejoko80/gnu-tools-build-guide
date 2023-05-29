@@ -93,8 +93,7 @@
 ```
     $ mkdir gcc-13.1.0-build
     $ cd gcc-13.1.0-build
-    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --with-cpu=cortex-a7 --enable-languages=c,c++ --disable-nls --disable-multilib --disable-shared --with-newlib --with-headers=../newlib-4.3.0.20230120/newlib/libc/include
-    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --enable-languages=c,c++ --disable-nls --disable-shared
+    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --with-headers=../newlib-4.3.0.20230120/newlib/libc/include
     $ make -j8
     $ make install-strip     
     
@@ -119,7 +118,7 @@
 
 ```
     $ cd newlib-build
-    $ ../newlib-4.3.0.20230120/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --disable-newlib-supplied-syscalls  
+    $ ../newlib-4.3.0.20230120/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --disable-newlib-supplied-syscalls  
     $ make -j8
     $ make install
 
@@ -134,7 +133,7 @@
 ```
     $ mkdir gcc-13.1.0-build
     $ cd gcc-13.1.0-build
-    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --with-cpu=cortex-a7 --enable-languages=c,c++ --disable-nls --disable-multilib --disable-shared --with-newlib --with-headers=../newlib-4.3.0.20230120/newlib/libc/include
+    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --with-headers=../newlib-4.3.0.20230120/newlib/libc/include
     $ make -j8
     $ make install-strip
 ```
