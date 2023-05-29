@@ -190,11 +190,26 @@ the mingw cross compiler can compile the target libraries.
     $ make install-strip
  ```
 
-## 3.10) Build gdb:
+## 3.10) Build xpat library:
+
+```
+    $ mkdir xpat_install
+    $ cd xpat_install
+    $ export XPAT_INSTALL=$PWD
+    $ cd ..
+    $ git clone https://github.com/libexpat/libexpat.git
+    $ cd libexpat/expat
+    $ ./buildconf.sh
+    $ ./configure --prefix=$XPAT_INSTALL --build=$BUILD --host=$HOST --target=$HOST
+    $ make -j8
+    $ make install 
+``` 
+ 
+## 3.11) Build gdb:
 
 ```
     $ cd gdb-13.1-build
-    $ ../gdb-13.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-expat
+    $ ../gdb-13.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-expat=$XPAT_INSTALL
     $ make -j8
     $ make install
 ```
