@@ -1,4 +1,4 @@
-# Build arm-none-eabi gnu toolchains on Windows MinGW MSys2:
+# Build arm-none-eabi gnu toolchains on Windows MinGW MSys2 (Compilation is ok but it doesn't work)
 
 ## 1) Download source tarballs:
 
