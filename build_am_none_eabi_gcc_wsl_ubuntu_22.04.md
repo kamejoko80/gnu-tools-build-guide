@@ -67,11 +67,13 @@
 
 7) Compile mpc:
 
+```
     $ mkdir mpc-1.3.1-build
     $ cd mpc-1.3.1-build
     $ ../mpc-1.3.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --disable-shared --enable-static
     $ make -j8
     $ make install
+```
 
 ## 8) Compile binutils:
 
