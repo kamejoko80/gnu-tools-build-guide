@@ -36,7 +36,7 @@
 ## 4) Export environment variables:
 
 ```
-    $ export BUILD=x86_64-linux-gnu
+    $ export BUILD=x86_64-pc-linux-gnu
     $ export HOST=x86_64-w64-mingw32
     $ export TARGET=arm-none-eabi
     $ export INSTALL_DIR=/home/phuong/Workspace/arm_toolchains/build/install_dir # Note: it must be absolute path, not relative path
