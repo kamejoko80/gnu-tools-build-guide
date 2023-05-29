@@ -210,7 +210,7 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
     $ cd libexpat/expat
     $ ./buildconf.sh
     $ ./configure --prefix=$XPAT_INSTALL --build=$BUILD --host=$HOST --target=$HOST
-    $ make -j8
+    $ make all -j8
     $ make install 
 ``` 
  
