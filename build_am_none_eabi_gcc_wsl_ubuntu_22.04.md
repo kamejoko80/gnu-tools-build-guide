@@ -199,26 +199,48 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
     $ make install-gcc
  ```
 
-## 3.11) Build xpat library:
+## 3.11) Build xpat, liblzma libraries:
 
 ```
-    $ mkdir xpat_install
-    $ cd xpat_install
-    $ export XPAT_INSTALL=$PWD
-    $ cd ..
+    $ sudo apt install libtool-bin help2man
+    $ sudo apt-get install autotools-dev gettext
+    
+    $ mkdir sysroot
+    $ cd sysroot
+    $ export SYSROOT=$PWD
+    
+    $ wget https://mirror.downloadvn.com/gnu/libtool/libtool-2.4.tar.xz
+    $ tar -xvf libtool-2.4.tar.xz
+    $ cd libtool-2.4
+    $ ./bootstrap
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+    $ make all -j8
+    $ make install
+    
+    $ git clone https://github.com/skangas/guile.git
+    $ ./autogen.sh
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --with-gmp=$INSTALL_DIR --disable-shared
+
     $ git clone https://github.com/libexpat/libexpat.git
     $ cd libexpat/expat
     $ ./buildconf.sh
-    $ ./configure --prefix=$XPAT_INSTALL --build=$BUILD --host=$HOST --target=$HOST
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
     $ make all -j8
-    $ make install 
+    $ make install
+    
+    $ git clone https://github.com/kobolabs/liblzma.git
+    $ cd liblzma
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+    $ make all -j8
+    $ make install
+    
 ``` 
  
 ## 3.12) Build gdb:
 
 ```
     $ cd gdb-13.1-build
-    $ ../gdb-13.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-mpfr=$INSTALL_DIR --with-expat=$XPAT_INSTALL --with-guile --with-lzma
+    $ ../gdb-13.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-mpfr=$INSTALL_DIR --with-expat=$SYSROOT --with-guile=$SYSROOT --with-lzma=$SYSROOT
     $ make all -j8
     $ make install
 ```
