@@ -157,7 +157,24 @@ the mingw cross compiler can compile the target libraries.
     $ make install-strip
 ```
 
-## 3.8) Compile newlib:
+## 3.8) Compile gcc:
+
+```
+    $ cd gcc-13.1.0-build
+    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --without-headers
+    $ make all-gcc -j8
+    $ make install-gcc
+ ```
+
+Almost all the configure script switches are explained earlier, the remaining switches details are as under:
+
+<ul>
+  <li>--enable-languages: The target languages support to be added to the toolchain.</li>
+  <li>--without-headers: Disables GCC from using the target's Libc when cross compiling.</li>
+  <li>--with-newlib: Specifies that "newlib" is being used as the target C library.</li>
+</ul>
+
+## 3.9) Compile newlib:
 
 ```
     $ cd newlib-build
@@ -171,16 +188,18 @@ the mingw cross compiler can compile the target libraries.
     the “libc.a” archive in the newlib directory is the one I use.
 ```
 
-## 3.9) Compile gcc:
+## 3.10) Compile gcc:
+
+Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add its support to the earlier build gcc compiler to complete it.
 
 ```
     $ cd gcc-13.1.0-build
-    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --with-headers=../newlib-4.3.0.20230120/newlib/libc/include
+    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib
     $ make all-gcc -j8
     $ make install-gcc
  ```
 
-## 3.10) Build xpat library:
+## 3.11) Build xpat library:
 
 ```
     $ mkdir xpat_install
@@ -195,7 +214,7 @@ the mingw cross compiler can compile the target libraries.
     $ make install 
 ``` 
  
-## 3.11) Build gdb:
+## 3.12) Build gdb:
 
 ```
     $ cd gdb-13.1-build
