@@ -202,12 +202,17 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
 ## 3.11) Build xpat, liblzma libraries:
 
 ```
-    $ sudo apt install libtool-bin help2man
+    $ sudo apt install libtool-bin help2man gperf
     $ sudo apt-get install autotools-dev gettext
     
     $ mkdir sysroot
     $ cd sysroot
     $ export SYSROOT=$PWD
+    
+    $ cd gmp-6.2.1-build
+    $ ../gmp-6.2.1/configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --enable-fft --enable-cxx --disable-shared --enable-static
+    $ make all -j8
+    $ make install   
     
     $ wget https://mirror.downloadvn.com/gnu/libtool/libtool-2.4.tar.xz
     $ tar -xvf libtool-2.4.tar.xz
@@ -217,9 +222,26 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
     $ make all -j8
     $ make install
     
-    $ git clone https://github.com/skangas/guile.git
+    $ git clone https://github.com/gnosis/libunistring.git
+    $ cd libunistring
+    $ ./gitsub.sh pull
     $ ./autogen.sh
-    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --with-gmp=$INSTALL_DIR --disable-shared
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+    $ make all -j8
+    $ make install
+           
+    $ git clone https://github.com/ivmai/bdwgc
+    $ cd bdwgc
+    $ git clone https://github.com/ivmai/libatomic_ops
+    $ ./autogen.sh
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+    $ make all -j8
+    $ make install 
+          
+    $ git clone https://github.com/skangas/guile.git
+    $ cd guile
+    $ ./autogen.sh
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared  BDW_GC_LIBS=-lgc BDW_GC_CFLAGS=-L$SYSROOT/lib
 
     $ git clone https://github.com/libexpat/libexpat.git
     $ cd libexpat/expat
@@ -240,7 +262,7 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
 
 ```
     $ cd gdb-13.1-build
-    $ ../gdb-13.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-mpfr=$INSTALL_DIR --with-expat=$SYSROOT --with-guile=$SYSROOT --with-lzma=$SYSROOT
+    $ ../gdb-13.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-mpfr=$INSTALL_DIR --with-expat=$SYSROOT --with-lzma=$SYSROOT #--with-guile=$SYSROOT
     $ make all -j8
     $ make install
 ```
