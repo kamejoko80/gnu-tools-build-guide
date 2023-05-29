@@ -56,7 +56,6 @@ the mingw cross compiler can compile the target libraries.
 ## 2.2) Compile gmp:
 
 ```
-    $ mkdir gmp-6.2.1-build
     $ cd gmp-6.2.1-build
     $ ../gmp-6.2.1/configure --prefix=$INSTALL_DIR --enable-fft --enable-cxx --disable-shared --enable-static
     $ make -j8
@@ -66,7 +65,6 @@ the mingw cross compiler can compile the target libraries.
 ## 2.3) Compile mpfr:
 
 ```
-    $ mkdir mpfr-4.2.0-build
     $ cd mpfr-4.2.0-build
     $ ../mpfr-4.2.0/configure --prefix=$INSTALL_DIR --with-gmp=$INSTALL_DIR --disable-shared --enable-static
     $ make -j8
@@ -76,7 +74,6 @@ the mingw cross compiler can compile the target libraries.
 ## 2.4) Compile mpc:
 
 ```
-    $ mkdir mpc-1.3.1-build
     $ cd mpc-1.3.1-build
     $ ../mpc-1.3.1/configure --prefix=$INSTALL_DIR --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --disable-shared --enable-static
     $ make -j8
@@ -86,7 +83,6 @@ the mingw cross compiler can compile the target libraries.
 ## 2.5) Compile binutils:
 
 ```
-    $ mkdir binutils-2.40-build
     $ cd binutils-2.40-build
     $ ../binutils-2.40/configure --prefix=$INSTALL_DIR --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR
     $ make -j8
@@ -96,7 +92,6 @@ the mingw cross compiler can compile the target libraries.
 ## 2.6) Compile gcc:
 
 ```
-    $ mkdir gcc-13.1.0-build
     $ cd gcc-13.1.0-build
     $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --with-headers=../newlib-4.3.0.20230120/newlib/libc/include
     $ make -j8
@@ -129,7 +124,6 @@ the mingw cross compiler can compile the target libraries.
 ## 3.4) Compile gmp:
 
 ```
-    $ mkdir gmp-6.2.1-build
     $ cd gmp-6.2.1-build
     $ ../gmp-6.2.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --enable-fft --enable-cxx --disable-shared --enable-static
     $ make -j8
@@ -139,7 +133,6 @@ the mingw cross compiler can compile the target libraries.
 ## 3.5) Compile mpfr:
 
 ```
-    $ mkdir mpfr-4.2.0-build
     $ cd mpfr-4.2.0-build
     $ ../mpfr-4.2.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --with-gmp=$INSTALL_DIR --disable-shared --enable-static
     $ make -j8
@@ -149,7 +142,6 @@ the mingw cross compiler can compile the target libraries.
 ## 3.6) Compile mpc:
 
 ```
-    $ mkdir mpc-1.3.1-build
     $ cd mpc-1.3.1-build
     $ ../mpc-1.3.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --disable-shared --enable-static
     $ make -j8
@@ -159,7 +151,6 @@ the mingw cross compiler can compile the target libraries.
 ## 3.7) Compile binutils:
 
 ```
-    $ mkdir binutils-2.40-build
     $ cd binutils-2.40-build
     $ ../binutils-2.40/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR
     $ make -j8
@@ -183,7 +174,6 @@ the mingw cross compiler can compile the target libraries.
 ## 3.9) Compile gcc:
 
 ```
-    $ mkdir gcc-13.1.0-build
     $ cd gcc-13.1.0-build
     $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --with-headers=../newlib-4.3.0.20230120/newlib/libc/include
     $ make -j8
