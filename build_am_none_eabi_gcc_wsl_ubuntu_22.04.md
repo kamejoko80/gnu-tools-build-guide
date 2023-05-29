@@ -94,7 +94,7 @@ the mingw cross compiler can compile the target libraries.
 ```
     $ cd gcc-13.1.0-build
     $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --with-headers=../newlib-4.3.0.20230120/newlib/libc/include
-    $ make -j8
+    $ make all-gcc -j8
     $ make install-strip
  ```
 
