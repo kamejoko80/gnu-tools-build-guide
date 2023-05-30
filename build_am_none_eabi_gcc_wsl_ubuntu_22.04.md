@@ -229,7 +229,7 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
     $ cd bdwgc
     $ git clone https://github.com/ivmai/libatomic_ops
     $ ./autogen.sh
-    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared --enable-threads=posix
     $ make all -j8
     $ make install 
     
