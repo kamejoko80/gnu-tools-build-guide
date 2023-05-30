@@ -112,7 +112,7 @@ the mingw cross compiler can compile the target libraries.
 ## 3.3) Define Windows host build environment variables:
 
 ```
-   $ sudo apt install libtool-bin help2man gperf
+   $ sudo apt install libtool-bin help2man gperf guile-3.0
    $ sudo apt-get install autotools-dev gettext
     
    $ mkdir sysroot
@@ -232,12 +232,26 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
     $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
     $ make all -j8
     $ make install 
-          
-    $ git clone https://github.com/skangas/guile.git
-    $ cd guile
-    $ ./autogen.sh
-    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared  BDW_GC_LIBS=-lgc BDW_GC_CFLAGS=-L$SYSROOT/lib
-
+    
+    $ wget https://gcc.gnu.org/pub/libffi/libffi-3.4.3.tar.gz
+    $ tar -xvf libffi-3.4.3.tar.gz
+    $ cd libffi-3.4.3
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+    $ make all -j8
+    $ make install
+    
+    $ export BDW_GC_CFLAGS="-I$SYSROOT/include"
+    $ export BDW_GC_LIBS="-L$SYSROOT/lib -lgc"
+    $ export LIBFFI_CFLAGS="-I$SYSROOT/include"
+    $ export LIBFFI_LIBS="-L$SYSROOT/lib -lffi"
+    
+    $ wget https://ftp.gnu.org/gnu/guile/guile-3.0.1.tar.gz
+    $ tar -xvf guile-3.0.1.tar.gz
+    $ cd guile-3.0.1
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+    $ make all -j8
+    $ make install
+   
     $ git clone https://github.com/libexpat/libexpat.git
     $ cd libexpat/expat
     $ ./buildconf.sh
