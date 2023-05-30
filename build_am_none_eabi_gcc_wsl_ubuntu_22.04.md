@@ -48,7 +48,7 @@ the mingw cross compiler can compile the target libraries.
 ```
    $ cd build/install_linux_dir
    $ export INSTALL_LINUX_DIR=$PWD
-   $ export PATH=$PATH:$INSTALL_DIR/bin
+   $ export PATH=$PATH:$INSTALL_LINUX_DIR/bin
    $ export TARGET=arm-none-eabi
    $ cd ../
 ```
