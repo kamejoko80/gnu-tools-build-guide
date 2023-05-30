@@ -66,7 +66,7 @@ the mingw cross compiler can compile the target libraries.
 
 ```
     $ cd mpfr-4.2.0-build
-    $ ../mpfr-4.2.0/configure --prefix=$INSTALL_LINUX_DIR --with-gmp=$INSTALL_DIR --disable-shared --enable-static
+    $ ../mpfr-4.2.0/configure --prefix=$INSTALL_LINUX_DIR --with-gmp=$INSTALL_LINUX_DIR --disable-shared --enable-static
     $ make all -j8
     $ make install
 ```
