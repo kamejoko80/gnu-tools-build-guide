@@ -249,18 +249,6 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
     $ ./autogen.sh
     $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared # --enable-threads=posix        
         
-    $ export BDW_GC_CFLAGS="-I$SYSROOT/include"
-    $ export BDW_GC_LIBS="-L$SYSROOT/lib -lgc"
-    $ export LIBFFI_CFLAGS="-I$SYSROOT/include"
-    $ export LIBFFI_LIBS="-L$SYSROOT/lib -lffi"
-    
-    $ wget https://ftp.gnu.org/gnu/guile/guile-3.0.1.tar.gz
-    $ tar -xvf guile-3.0.1.tar.gz
-    $ cd guile-3.0.1
-    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
-    $ make all -j8
-    $ make install
-   
     ## Some stubs before buiding guile (Should not applied)
    
     #export BDW_GC_CFLAGS="-I$SYSROOT/include"
