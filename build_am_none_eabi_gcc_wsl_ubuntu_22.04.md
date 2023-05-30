@@ -226,13 +226,14 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
     $ make all -j8
     $ make install
            
-    $ git clone https://github.com/ivmai/bdwgc
-    $ cd bdwgc
-    $ git clone https://github.com/ivmai/libatomic_ops
+    $ wget https://github.com/ivmai/bdwgc/archive/refs/tags/v8.2.2.tar.gz
+    $ tar -xvf v8.2.2.tar.gz
+    $ cd bdwgc-8.2.2
+    $ wget https://github.com/ivmai/libatomic_ops/archive/refs/tags/v7.8.0.tar.gz
+    $ tar -xvf v7.8.0.tar.gz
+    $ mv libatomic_ops-7.8.0 libatomic_ops
     $ ./autogen.sh
-    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared --enable-threads=posix
-    $ make all -j8
-    $ make install 
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared # --enable-threads=posix
     
     $ wget https://gcc.gnu.org/pub/libffi/libffi-3.4.3.tar.gz
     $ tar -xvf libffi-3.4.3.tar.gz
@@ -260,18 +261,62 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
     $ make all -j8
     $ make install
    
-    $ git clone https://github.com/libexpat/libexpat.git
-    $ cd libexpat/expat
-    $ ./buildconf.sh
-    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
-    $ make all -j8
-    $ make install
+    ## Some stubs before buiding guile (Should not applied)
+   
+    #export BDW_GC_CFLAGS="-I$SYSROOT/include"
+    #export BDW_GC_LIBS="-L$SYSROOT/lib -lgc"
+    #export LIBFFI_CFLAGS="-I$SYSROOT/include"
+    #export LIBFFI_LIBS="-L$SYSROOT/lib -lffi"
+    #export PKG_CONFIG_PATH=$SYSROOT/lib/pkgconfig
+    #sudo ln -s /usr/include/asm-generic /usr/include/asm
+   
+    ## Fixed pkg-config bug: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=967969
+    $ sudo nano /usr/share/pkg-config-crosswrapper
     
-    $ git clone https://github.com/kobolabs/liblzma.git
-    $ cd liblzma
-    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
-    $ make all -j8
-    $ make install
+    Change:
+    
+       multiarch="$(dpkg-architecture -t"${triplet}" -qDEB_HOST_MULTIARCH 2>/dev/null)"
+       -  if [ "$?" != 0 ]; then
+       +  if [ "$?" = 127 ]; then
+             echo "Please install dpkg-dev to use pkg-config when cross-building" >&2
+             exit 1
+          fi
+   
+     ## option 1: guile-2.2
+     
+     $ sudo apt-get install guile-2.2
+     $ guile --version
+     $ guile (GNU Guile) 2.2.7
+
+     $ wget https://ftp.gnu.org/gnu/guile/guile-2.2.7.tar.gz
+     $ tar -xvf guile-2.2.7.tar.gz
+     $ cd guile-2.2.7
+     $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+     $ make CFLAGS="$CFLAGS -I/usr/include" all -j8
+     $ make install
+   
+     ## option 2: guile-3.0
+   
+     $ sudo apt-get install guile-3.0  
+     $ wget https://ftp.gnu.org/gnu/guile/guile-3.0.1.tar.gz
+     $ tar -xvf guile-3.0.1.tar.gz
+     $ cd guile-3.0.1
+     $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+     $ make CFLAGS="$CFLAGS -I/usr/include" all -j8
+     $ make install   
+   
+     $ git clone https://github.com/libexpat/libexpat.git
+     $ cd libexpat/expat
+     $ ./buildconf.sh
+     $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+     $ make all -j8
+     $ make install
+    
+     $ git clone https://github.com/kobolabs/liblzma.git
+     $ cd liblzma
+     $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+     $ make all -j8
+     $ make install
     
 ``` 
  
