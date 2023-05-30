@@ -225,16 +225,7 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
     $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
     $ make all -j8
     $ make install
-           
-    $ wget https://github.com/ivmai/bdwgc/archive/refs/tags/v8.2.2.tar.gz
-    $ tar -xvf v8.2.2.tar.gz
-    $ cd bdwgc-8.2.2
-    $ wget https://github.com/ivmai/libatomic_ops/archive/refs/tags/v7.8.0.tar.gz
-    $ tar -xvf v7.8.0.tar.gz
-    $ mv libatomic_ops-7.8.0 libatomic_ops
-    $ ./autogen.sh
-    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared # --enable-threads=posix
-    
+              
     $ wget https://gcc.gnu.org/pub/libffi/libffi-3.4.3.tar.gz
     $ tar -xvf libffi-3.4.3.tar.gz
     $ cd libffi-3.4.3
@@ -248,6 +239,15 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
     $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
     $ make all -j8
     $ make install
+        
+    $ wget https://github.com/ivmai/bdwgc/archive/refs/tags/v8.2.2.tar.gz
+    $ tar -xvf v8.2.2.tar.gz
+    $ cd bdwgc-8.2.2
+    $ wget https://github.com/ivmai/libatomic_ops/archive/refs/tags/v7.8.0.tar.gz
+    $ tar -xvf v7.8.0.tar.gz
+    $ mv libatomic_ops-7.8.0 libatomic_ops
+    $ ./autogen.sh
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared # --enable-threads=posix        
         
     $ export BDW_GC_CFLAGS="-I$SYSROOT/include"
     $ export BDW_GC_LIBS="-L$SYSROOT/lib -lgc"
