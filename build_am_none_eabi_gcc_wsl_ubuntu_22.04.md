@@ -239,7 +239,14 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
     $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
     $ make all -j8
     $ make install
-    
+ 
+    $ wget https://ftp.gnu.org/gnu/libiconv/libiconv-1.17.tar.gz
+    $ tar -xvf libiconv-1.17.tar.gz
+    $ cd libiconv-1.17
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+    $ make all -j8
+    $ make install
+        
     $ export BDW_GC_CFLAGS="-I$SYSROOT/include"
     $ export BDW_GC_LIBS="-L$SYSROOT/lib -lgc"
     $ export LIBFFI_CFLAGS="-I$SYSROOT/include"
