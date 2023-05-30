@@ -324,4 +324,5 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
     https://gnutoolchains.com/building/
     https://thalesdocs.com/gphsm/ptk/5.6/docs/Content/FM_SDK/Setup_MSYS_Env.htm
     https://sourceforge.net/p/mingw-w64/wiki2/Build%20a%20native%20Windows%2064-bit%20gcc%20from%20Linux%20%28including%20cross-compiler%29/
+    https://github.com/Madsy/guile-automatic-build
  ```
