@@ -247,7 +247,7 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
     $ tar -xvf v7.8.0.tar.gz
     $ mv libatomic_ops-7.8.0 libatomic_ops
     $ ./autogen.sh
-    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared # --enable-threads=posix        
+    $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared --enable-threads=posix        
         
     ## Some stubs before buiding guile (Should not applied)
    
@@ -279,7 +279,7 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
      $ wget https://ftp.gnu.org/gnu/guile/guile-2.2.7.tar.gz
      $ tar -xvf guile-2.2.7.tar.gz
      $ cd guile-2.2.7
-     $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+     $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST
      $ make CFLAGS="$CFLAGS -I/usr/include" all -j8
      $ make install
    
@@ -289,7 +289,7 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
      $ wget https://ftp.gnu.org/gnu/guile/guile-3.0.1.tar.gz
      $ tar -xvf guile-3.0.1.tar.gz
      $ cd guile-3.0.1
-     $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST --disable-shared
+     $ ./configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --target=$HOST
      $ make CFLAGS="$CFLAGS -I/usr/include" all -j8
      $ make install   
    
