@@ -118,7 +118,8 @@ the mingw cross compiler can compile the target libraries.
    $ mkdir sysroot
    $ cd sysroot
    $ export SYSROOT=$PWD
-
+   $ export PKG_CONFIG_PATH=$SYSROOT/lib/pkgconfig 
+    
    $ cd build/install_windows_dir
    $ export INSTALL_WINDOWS_DIR=$PWD
    $ export BUILD=x86_64-pc-linux-gnu
