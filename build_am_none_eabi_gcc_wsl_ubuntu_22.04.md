@@ -112,8 +112,15 @@ the mingw cross compiler can compile the target libraries.
 ## 3.3) Define Windows host build environment variables:
 
 ```
+   $ sudo apt install libtool-bin help2man gperf
+   $ sudo apt-get install autotools-dev gettext
+    
+   $ mkdir sysroot
+   $ cd sysroot
+   $ export SYSROOT=$PWD
+
    $ cd build/install_windows_dir
-   $ export INSTALL_DIR=$PWD
+   $ export INSTALL_WINDOWS_DIR=$PWD
    $ export BUILD=x86_64-pc-linux-gnu
    $ export HOST=x86_64-w64-mingw32
    $ export TARGET=arm-none-eabi
@@ -125,7 +132,7 @@ the mingw cross compiler can compile the target libraries.
 
 ```
     $ cd gmp-6.2.1-build
-    $ ../gmp-6.2.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --enable-fft --enable-cxx --disable-shared --enable-static
+    $ ../gmp-6.2.1/configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --enable-fft --enable-cxx --disable-shared --enable-static
     $ make all -j8
     $ make install
 ```
@@ -134,7 +141,7 @@ the mingw cross compiler can compile the target libraries.
 
 ```
     $ cd mpfr-4.2.0-build
-    $ ../mpfr-4.2.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --with-gmp=$INSTALL_DIR --disable-shared --enable-static
+    $ ../mpfr-4.2.0/configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --with-gmp=$SYSROOT --disable-shared --enable-static
     $ make all -j8
     $ make install
 ```
@@ -143,7 +150,7 @@ the mingw cross compiler can compile the target libraries.
 
 ```
     $ cd mpc-1.3.1-build
-    $ ../mpc-1.3.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --disable-shared --enable-static
+    $ ../mpc-1.3.1/configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --with-gmp=$SYSROOT --with-mpfr=$SYSROOT --disable-shared --enable-static
     $ make all -j8
     $ make install
 ```
@@ -152,7 +159,7 @@ the mingw cross compiler can compile the target libraries.
 
 ```
     $ cd binutils-2.40-build
-    $ ../binutils-2.40/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR
+    $ ../binutils-2.40/configure --prefix=$INSTALL_WINDOWS_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$SYSROOT --with-mpfr=$SYSROOT --with-mpc=$SYSROOT
     $ make all -j8
     $ make install-strip
 ```
@@ -161,7 +168,7 @@ the mingw cross compiler can compile the target libraries.
 
 ```
     $ cd gcc-13.1.0-build
-    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --without-headers
+    $ ../gcc-13.1.0/configure --prefix=$INSTALL_WINDOWS_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$SYSROOT --with-mpfr=$SYSROOT --with-mpc=$SYSROOT --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --without-headers
     $ make all-gcc -j8
     $ make install-gcc
  ```
@@ -178,7 +185,7 @@ Almost all the configure script switches are explained earlier, the remaining sw
 
 ```
     $ cd newlib-build
-    $ ../newlib-4.3.0.20230120/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --disable-newlib-supplied-syscalls
+    $ ../newlib-4.3.0.20230120/configure --prefix=$INSTALL_WINDOWS_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --disable-newlib-supplied-syscalls
     $ make all -j8
     $ make install
 
@@ -194,26 +201,14 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
 
 ```
     $ cd gcc-13.1.0-build
-    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib
+    $ ../gcc-13.1.0/configure --prefix=$INSTALL_WINDOWS_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-gmp=$SYSROOT --with-mpfr=$SYSROOT --with-mpc=$SYSROOT --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib
     $ make all-gcc -j8
     $ make install-gcc
  ```
 
 ## 3.11) Build xpat, liblzma libraries:
 
-```
-    $ sudo apt install libtool-bin help2man gperf
-    $ sudo apt-get install autotools-dev gettext
-    
-    $ mkdir sysroot
-    $ cd sysroot
-    $ export SYSROOT=$PWD
-    
-    $ cd gmp-6.2.1-build
-    $ ../gmp-6.2.1/configure --prefix=$SYSROOT --build=$BUILD --host=$HOST --enable-fft --enable-cxx --disable-shared --enable-static
-    $ make all -j8
-    $ make install   
-    
+```    
     $ wget https://mirror.downloadvn.com/gnu/libtool/libtool-2.4.tar.xz
     $ tar -xvf libtool-2.4.tar.xz
     $ cd libtool-2.4
@@ -262,7 +257,7 @@ Now that C-Libraries (newlib) is cross-compiled successfully; it's time to add i
 
 ```
     $ cd gdb-13.1-build
-    $ ../gdb-13.1/configure --prefix=$INSTALL_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-mpfr=$INSTALL_DIR --with-expat=$SYSROOT --with-lzma=$SYSROOT #--with-guile=$SYSROOT
+    $ ../gdb-13.1/configure --prefix=$INSTALL_WINDOWS_DIR --build=$BUILD --host=$HOST --target=$TARGET --with-mpfr=$SYSROOT --with-expat=$SYSROOT --with-lzma=$SYSROOT #--with-guile=$SYSROOT
     $ make all -j8
     $ make install
 ```
