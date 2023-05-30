@@ -47,7 +47,7 @@ the mingw cross compiler can compile the target libraries.
 
 ```
    $ cd build/install_linux_dir
-   $ export INSTALL_DIR=$PWD
+   $ export INSTALL_LINUX_DIR=$PWD
    $ export PATH=$PATH:$INSTALL_DIR/bin
    $ export TARGET=arm-none-eabi
    $ cd ../
@@ -57,7 +57,7 @@ the mingw cross compiler can compile the target libraries.
 
 ```
     $ cd gmp-6.2.1-build
-    $ ../gmp-6.2.1/configure --prefix=$INSTALL_DIR --enable-fft --enable-cxx --disable-shared --enable-static
+    $ ../gmp-6.2.1/configure --prefix=$INSTALL_LINUX_DIR --enable-fft --enable-cxx --disable-shared --enable-static
     $ make all -j8
     $ make install
 ```
@@ -66,7 +66,7 @@ the mingw cross compiler can compile the target libraries.
 
 ```
     $ cd mpfr-4.2.0-build
-    $ ../mpfr-4.2.0/configure --prefix=$INSTALL_DIR --with-gmp=$INSTALL_DIR --disable-shared --enable-static
+    $ ../mpfr-4.2.0/configure --prefix=$INSTALL_LINUX_DIR --with-gmp=$INSTALL_DIR --disable-shared --enable-static
     $ make all -j8
     $ make install
 ```
@@ -75,7 +75,7 @@ the mingw cross compiler can compile the target libraries.
 
 ```
     $ cd mpc-1.3.1-build
-    $ ../mpc-1.3.1/configure --prefix=$INSTALL_DIR --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --disable-shared --enable-static
+    $ ../mpc-1.3.1/configure --prefix=$INSTALL_LINUX_DIR --with-gmp=$INSTALL_LINUX_DIR --with-mpfr=$INSTALL_LINUX_DIR --disable-shared --enable-static
     $ make all -j8
     $ make install
 ```
@@ -84,7 +84,7 @@ the mingw cross compiler can compile the target libraries.
 
 ```
     $ cd binutils-2.40-build
-    $ ../binutils-2.40/configure --prefix=$INSTALL_DIR --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR
+    $ ../binutils-2.40/configure --prefix=$INSTALL_LINUX_DIR --target=$TARGET --with-gmp=$INSTALL_LINUX_DIR --with-mpfr=$INSTALL_LINUX_DIR --with-mpc=$INSTALL_LINUX_DIR
     $ make all -j8
     $ make install-strip
 ```
@@ -93,7 +93,7 @@ the mingw cross compiler can compile the target libraries.
 
 ```
     $ cd gcc-13.1.0-build
-    $ ../gcc-13.1.0/configure --prefix=$INSTALL_DIR --target=$TARGET --with-gmp=$INSTALL_DIR --with-mpfr=$INSTALL_DIR --with-mpc=$INSTALL_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --with-headers=../newlib-4.3.0.20230120/newlib/libc/include
+    $ ../gcc-13.1.0/configure --prefix=$INSTALL_LINUX_DIR --target=$TARGET --with-gmp=$INSTALL_LINUX_DIR --with-mpfr=$INSTALL_LINUX_DIR --with-mpc=$INSTALL_LINUX_DIR --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --with-headers=../newlib-4.3.0.20230120/newlib/libc/include
     $ make all-gcc -j8
     $ make install-gcc
  ```
