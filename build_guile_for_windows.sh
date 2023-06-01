@@ -75,6 +75,7 @@ $ cp -rf guile-3.0.0 guile-3.0.0-windows
 $ git clone https://gitlab.com/janneke/guile.git
 $ cd guile
 $ git checkout wip-mingw-x86_64
+$ or git checkout wip-mingw-3.0.7
 $ cp -rf guile gitlab-guile-linux
 $ cp -rf guile gitlab-guile-windows
 
