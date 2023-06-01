@@ -3,15 +3,14 @@ https://github.com/Madsy/guile-automatic-build/raw/master/deps/gettext-latest.ta
 https://github.com/Madsy/guile-automatic-build/raw/master/deps/libiconv-1.14.tar.gz
 https://github.com/Madsy/guile-automatic-build/raw/master/deps/gmp-6.1.0.tar.lz
 
-export BUILD=x86_64-pc-linux-gnu
-export WORK_DIR=$PWD
-
 export CC=x86_64-w64-mingw32-gcc
 export CC_FOR_BUILD=x86_64-linux-gnu-gcc
 export CPP_FOR_BUILD=x86_64-linux-gnu-cpp
+export BUILD=x86_64-pc-linux-gnu
 export HOST_CC=x86_64-w64-mingw32
 
-export GUILE_AUTOMATIC_BASE_DIR="$PWD"
+export WORK_DIR=$PWD
+export GUILE_AUTOMATIC_BASE_DIR="${WORK_DIR}/install_dir"
 export PREFIX="${GUILE_AUTOMATIC_BASE_DIR}/binaries/guile-${HOST_CC}"
 export WIN_CFLAGS="-I${PREFIX}/include -I${PREFIX}/lib/libffi-3.2.1/include"
 export LIBICONV_CFLAGS="${WIN_CFLAGS} --std=gnu89"
