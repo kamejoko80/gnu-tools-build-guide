@@ -95,7 +95,7 @@ $ cd gitlab-guile-windows
 $ ./autogen.sh
 $ ./configure --host="${HOST_CC}" --build="${BUILD}" --prefix="${PREFIX}/guile" --enable-mini-gmp --enable-static=yes --enable-shared=no --disable-jit --disable-rpath --enable-debug-malloc --enable-guile-debug --disable-deprecated --with-sysroot="${PREFIX}" --without-threads PKG_CONFIG=true BDW_GC_CFLAGS="-I${PREFIX}/include" BDW_GC_LIBS="-L${PREFIX}/lib -lgc" LIBFFI_CFLAGS="-I${PREFIX}/include" LIBFFI_LIBS="-L${PREFIX}/lib -lffi" GUILE_FOR_BUILD="$WORK_DIR/gitlab-guile-linux/meta/guile" CFLAGS="${WIN_CFLAGS} -DGC_NO_DLL" LDFLAGS="${WIN_LDFLAGS} -lwinpthread -lmman" CXXFLAGS="${WIN_CXXFLAGS}"
 
-# Similarly we can clone the source code from the Sanvannah repo:
+# Similarly we can clone the source code from the Sanvannah repo: https://git.savannah.gnu.org/cgit/
 $ git clone https://git.savannah.gnu.org/git/guile.git
 $ cd guile
 $ git checkout wip-mingw
