@@ -29,7 +29,7 @@ $ make
 $ make install
 
 $ cd libiconv-1.14
-$ ./configure --host="${HOST_CC}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${LIBICONV_CFLAGS}" LDFLAGS="-L${PREFIX}/lib" CXXFLAGS="-I${PREFIX}/include"
+$ ./configure --host="${HOST_CC}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="-I${PREFIX}/include" LDFLAGS="-L${PREFIX}/lib" CXXFLAGS="-I${PREFIX}/include"
 $ make -j8
 $ make install
 
