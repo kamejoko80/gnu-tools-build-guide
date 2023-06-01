@@ -18,7 +18,6 @@ export WORK_DIR=$PWD
 export GUILE_AUTOMATIC_BASE_DIR="${WORK_DIR}/install_dir"
 export PREFIX="${GUILE_AUTOMATIC_BASE_DIR}/binaries/guile-${HOST_CC}"
 export WIN_CFLAGS="-I${PREFIX}/include -I${PREFIX}/lib/libffi-3.2.1/include"
-export LIBICONV_CFLAGS="${WIN_CFLAGS} --std=gnu89"
 export WIN_CXXFLAGS="-I${PREFIX}/include"
 export WIN_LDFLAGS="-L${PREFIX}/lib -lmman"
 
@@ -29,7 +28,7 @@ $ make
 $ make install
 
 $ cd libiconv-1.14
-$ ./configure --host="${HOST_CC}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="-I${PREFIX}/include" LDFLAGS="-L${PREFIX}/lib" CXXFLAGS="-I${PREFIX}/include"
+$ ./configure --host="${HOST_CC}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="-I${PREFIX}/include --std=gnu89" LDFLAGS="-L${PREFIX}/lib" CXXFLAGS="-I${PREFIX}/include"
 $ make -j8
 $ make install
 
