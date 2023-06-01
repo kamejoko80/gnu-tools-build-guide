@@ -4,7 +4,7 @@ $ wget https://www.hboehm.info/gc/gc_source/gc-7.2e.tar.gz
 $ wget https://ftp.gnu.org/gnu/libiconv/libiconv-1.14.tar.gz
 $ wget https://ftp.gnu.org/gnu/gmp/gmp-6.1.0.tar.xz
 $ wget https://gcc.gnu.org/pub/libffi/libffi-3.2.1.tar.gz
-$ wget https://gcc.gnu.org/gnu/libtool/libtool-2.4.6.tar.gz
+$ wget https://ftp.gnu.org/gnu/libtool/libtool-2.4.6.tar.gz
 $ wget https://ftp.gnu.org/gnu/libunistring/libunistring-1.1.tar.xz
 $ wget https://ftp.gnu.org/gnu/gettext/gettext-0.20.2.tar.xz
 
