@@ -81,7 +81,8 @@ $ cp -rf guile gitlab-guile-windows
 
 # Build guile natively. Required for bootstrapping the Windows build
 # Note: must open new shell to build the Linux boostrap.
-$ sudo apt-get install libgmp-dev libltdl-dev libunistring-dev libgc-dev
+$ sudo apt-get install libgmp-dev libltdl-dev libunistring-dev libgc-dev autopoint
+$ ./autogen.sh
 $ ./configure --without-libiconv-prefix --with-threads --disable-deprecated --prefix=/usr/local CPPFLAGS='-I/usr/include' LDFLAGS='-L/usr/lib/x86_64-linux-gnu'
 $ make -j8
   
@@ -91,5 +92,6 @@ $ ./configure --host="${HOST_CC}" --build="${BUILD}" --prefix="${PREFIX}/guile" 
  
 # For gitlab guile (disable jit) 
 $ cd gitlab-guile-windows
+$ ./autogen.sh
 $ ./configure --host="${HOST_CC}" --build="${BUILD}" --prefix="${PREFIX}/guile" --enable-mini-gmp --enable-static=yes --enable-shared=no --disable-jit --disable-rpath --enable-debug-malloc --enable-guile-debug --disable-deprecated --with-sysroot="${PREFIX}" --without-threads PKG_CONFIG=true BDW_GC_CFLAGS="-I${PREFIX}/include" BDW_GC_LIBS="-L${PREFIX}/lib -lgc" LIBFFI_CFLAGS="-I${PREFIX}/include" LIBFFI_LIBS="-L${PREFIX}/lib -lffi" GUILE_FOR_BUILD="$WORK_DIR/gitlab-guile-linux/meta/guile" CFLAGS="${WIN_CFLAGS} -DGC_NO_DLL" LDFLAGS="${WIN_LDFLAGS} -lwinpthread -lmman" CXXFLAGS="${WIN_CXXFLAGS}"
  
