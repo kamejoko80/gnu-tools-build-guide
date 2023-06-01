@@ -72,6 +72,7 @@ $ cp -rf guile-2.2.7 guile-2.2.7-linux
 $ sudo apt-get install libgmp-dev libltdl-dev libunistring-dev libgc-dev
 $ cd guile-2.2.7-linux
 $ ./configure --without-libiconv-prefix --with-threads --disable-deprecated --prefix=/usr/local CPPFLAGS='-I/usr/include' LDFLAGS='-L/usr/lib/x86_64-linux-gnu'
+$ make -j8
 
 # Cross build for Windows:
 
