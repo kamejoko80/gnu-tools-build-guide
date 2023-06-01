@@ -17,6 +17,11 @@ export LIBICONV_CFLAGS="${WIN_CFLAGS} --std=gnu89"
 export WIN_CXXFLAGS="-I${PREFIX}/include"
 export WIN_LDFLAGS="-L${PREFIX}/lib"
 
+$ git@github.com:kamejoko80/mman-win32.git
+$ cd mman-win32
+$ ./configure --prefix=$PREFIX --cross-prefix=x86_64-w64-mingw32-
+$ make
+$ make install
 
 $ cd libiconv-1.14
 $ ./configure --host=${HOST_CC} --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${LIBICONV_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
