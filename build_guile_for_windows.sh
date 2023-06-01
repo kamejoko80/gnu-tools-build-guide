@@ -72,7 +72,7 @@ $ tar -xvf guile-3.0.0.tar.gz
 $ cp -rf guile-3.0.0 guile-3.0.0-linux
 $ cp -rf guile-3.0.0 guile-3.0.0-windows
 
-$ https://gitlab.com/janneke/guile.git
+$ git clone https://gitlab.com/janneke/guile.git
 $ cd guile
 $ git checkout wip-mingw-x86_64
 $ cp -rf guile gitlab-guile-linux
