@@ -15,7 +15,7 @@ export PREFIX="${GUILE_AUTOMATIC_BASE_DIR}/binaries/guile-${HOST_CC}"
 export WIN_CFLAGS="-I${PREFIX}/include -I${PREFIX}/lib/libffi-3.2.1/include"
 export LIBICONV_CFLAGS="${WIN_CFLAGS} --std=gnu89"
 export WIN_CXXFLAGS="-I${PREFIX}/include"
-export WIN_LDFLAGS="-L${PREFIX}/lib"
+export WIN_LDFLAGS="-L${PREFIX}/lib -lmman"
 
 $ git clone git@github.com:kamejoko80/mman-win32.git
 $ cd mman-win32
@@ -67,21 +67,29 @@ $ make -f Makefile.direct CC="${HOST_CC}-gcc" CXX="${HOST_CC}-g++" AS="${HOST_CC
 $ cp gc.a "${PREFIX}/lib/libgc.a"
 $ cp -r include "${PREFIX}/include/gc"
 
-$ wget https://ftp.gnu.org/gnu/guile/guile-2.2.7.tar.gz
-$ tar -xvf guile-2.2.7.tar.gz
-$ cp -rf guile-2.2.7 guile-2.2.7-linux
+# Now build the guile-x.y.z
+# Prepare source:
+$ tar -xvf guile-3.0.0.tar.gz
+$ cp -rf guile-3.0.0 guile-3.0.0-linux
+$ cp -rf guile-3.0.0 guile-3.0.0-windows
+
+$ https://gitlab.com/janneke/guile.git
+$ cd guile
+$ git checkout wip-mingw-x86_64
+$ cp -rf guile gitlab-guile-linux
+$ cp -rf guile gitlab-guile-windows
 
 # Build guile natively. Required for bootstrapping the Windows build
-# Note: Must open new shell
-
+# Note: must open new shell to build the Linux boostrap.
 $ sudo apt-get install libgmp-dev libltdl-dev libunistring-dev libgc-dev
-$ cd guile-2.2.7-linux
 $ ./configure --without-libiconv-prefix --with-threads --disable-deprecated --prefix=/usr/local CPPFLAGS='-I/usr/include' LDFLAGS='-L/usr/lib/x86_64-linux-gnu'
 $ make -j8
-
-# Cross build for Windows:
-
-$ cp -rf guile-2.2.7 guile-2.2.7-windows
-$ cd guile-2.2.7-windows
-$ ./configure --host="${HOST_CC}" --build="${BUILD}" --prefix="${PREFIX}/guile" --enable-static=yes --enable-shared=no --disable-rpath --enable-debug-malloc --enable-guile-debug --disable-deprecated --with-sysroot="${PREFIX}" --without-threads PKG_CONFIG=true BDW_GC_CFLAGS="-I${PREFIX}/include" BDW_GC_LIBS="-L${PREFIX}/lib -lgc" LIBFFI_CFLAGS="-I${PREFIX}/include" LIBFFI_LIBS="-L${PREFIX}/lib -lffi" GUILE_FOR_BUILD="$WORK_DIR/guile-2.0.9-linux/meta/guile" CFLAGS="${WIN_CFLAGS} -DGC_NO_DLL" LDFLAGS="${WIN_LDFLAGS} -lwinpthread" CXXFLAGS="${WIN_CXXFLAGS}"
-    
+  
+# For guile-3.0.0 (compile failed)
+$ cd guile-3.0.0-windows
+$ ./configure --host="${HOST_CC}" --build="${BUILD}" --prefix="${PREFIX}/guile" --enable-static=yes --enable-shared=no --disable-rpath --enable-debug-malloc --enable-guile-debug --disable-deprecated --with-sysroot="${PREFIX}" --without-threads PKG_CONFIG=true BDW_GC_CFLAGS="-I${PREFIX}/include" BDW_GC_LIBS="-L${PREFIX}/lib -lgc" LIBFFI_CFLAGS="-I${PREFIX}/include" LIBFFI_LIBS="-L${PREFIX}/lib -lffi" GUILE_FOR_BUILD="$WORK_DIR/guile-3.0.0-linux/meta/guile" CFLAGS="${WIN_CFLAGS} -DGC_NO_DLL" LDFLAGS="${WIN_LDFLAGS} -lwinpthread" CXXFLAGS="${WIN_CXXFLAGS}"
+ 
+# For gitlab guile (disable jit) 
+$ cd gitlab-guile-windows
+$ ./configure --host="${HOST_CC}" --build="${BUILD}" --prefix="${PREFIX}/guile" --enable-mini-gmp --enable-static=yes --enable-shared=no --disable-jit --disable-rpath --enable-debug-malloc --enable-guile-debug --disable-deprecated --with-sysroot="${PREFIX}" --without-threads PKG_CONFIG=true BDW_GC_CFLAGS="-I${PREFIX}/include" BDW_GC_LIBS="-L${PREFIX}/lib -lgc" LIBFFI_CFLAGS="-I${PREFIX}/include" LIBFFI_LIBS="-L${PREFIX}/lib -lffi" GUILE_FOR_BUILD="$WORK_DIR/gitlab-guile-linux/meta/guile" CFLAGS="${WIN_CFLAGS} -DGC_NO_DLL" LDFLAGS="${WIN_LDFLAGS} -lwinpthread" CXXFLAGS="${WIN_CXXFLAGS}"
+ 
