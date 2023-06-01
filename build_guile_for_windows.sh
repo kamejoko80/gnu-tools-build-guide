@@ -1,7 +1,12 @@
-https://www.hboehm.info/gc/gc_source/gc-7.2e.tar.gz
-https://github.com/Madsy/guile-automatic-build/raw/master/deps/gettext-latest.tar.gz
-https://github.com/Madsy/guile-automatic-build/raw/master/deps/libiconv-1.14.tar.gz
-https://github.com/Madsy/guile-automatic-build/raw/master/deps/gmp-6.1.0.tar.lz
+# Dowload sources:
+
+$ wget https://www.hboehm.info/gc/gc_source/gc-7.2e.tar.gz
+$ wget https://ftp.gnu.org/gnu/libiconv/libiconv-1.14.tar.gz
+$ wget https://ftp.gnu.org/gnu/gmp/gmp-6.1.0.tar.gz
+$ wget https://gcc.gnu.org/pub/libffi/libffi-3.2.1.tar.gz
+$ wget https://gcc.gnu.org/gnu/libtool/libtool-2.4.6.tar.gz
+$ wget https://ftp.gnu.org/gnu/libunistring/libunistring-1.1.tar.xz
+$ wget https://ftp.gnu.org/gnu/gettext/gettext-0.20.2.tar.xz
 
 export CC=x86_64-w64-mingw32-gcc
 export CC_FOR_BUILD=x86_64-linux-gnu-gcc
@@ -43,21 +48,16 @@ $ ./configure --host="${HOST_CC}" --enable-static --disable-rpath --prefix "${PR
 $ make -j8
 $ make install
 
-$ wget https://ftp.gnu.org/gnu/libunistring/libunistring-1.1.tar.xz
-$ tar -xvf libunistring-1.1.tar.xz
 $ cd libunistring-1.1
 $ ./configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath --prefix "${PREFIX}" --with-libiconv-prefix="${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
 $ make -j8
 $ make install
 
-$ wget https://ftp.gnu.org/gnu/gettext/gettext-0.20.2.tar.xz
-$ tar -xvf gettext-0.20.2.tar.xz
 $ cd gettext-0.20.2
 $ ./configure --host="${HOST_CC}" --build="${BUILD}" --disable-threads --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS} -O2" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS} -O2"
 $ make -j8
 $ make install
 
-$ tar -xvf gc-7.2e.tar.gz
 $ cd gc-7.2/libatomic_ops
 $ ./configure --host="${HOST_CC}" --build="${BUILD}" --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}"
 $ make -j8
