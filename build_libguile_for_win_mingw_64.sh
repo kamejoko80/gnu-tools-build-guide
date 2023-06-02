@@ -1,22 +1,32 @@
 #!/bin/bash
 
-# Directory to store downloaded files
-download_dir="download"
-install_dir="install"
+# Define environment variables
+export GUILE_GIT_BRANCH="wip-mingw-3.0.7"
+export GUILE_GIT_URL="https://gitlab.com/janneke/guile.git"
+export BUILD="x86_64-pc-linux-gnu"
+export HOST_CC="x86_64-w64-mingw32"
+export WORK_DIR=$PWD
+export DOWNLOAD_DIR="${WORK_DIR}/download"
+export INSTALL_DIR="${WORK_DIR}/install"
+export BUILD_DIR="${WORK_DIR}/build"
+export PREFIX="${INSTALL_DIR}/binaries/guile-${HOST_CC}"
+export WIN_CFLAGS="-I${PREFIX}/include -I${PREFIX}/lib/libffi-3.2.1/include"
+export WIN_CXXFLAGS="-I${PREFIX}/include"
+export WIN_LDFLAGS="-L${PREFIX}/lib"
 
-echo "====== This script builds libguile for Windows Mingw-64 =====" 
+echo "====== Build Libguile For Windows Mingw-64 ======"
 read -n 1 -p "Press return to continue"
 
-if [ -d "$download_dir" ]; then
-    echo "download exists"
-else
-    mkdir $download_dir
+if [ ! -e "$DOWNLOAD_DIR" ]; then
+    mkdir -p $DOWNLOAD_DIR
 fi
 
-if [ -d "$install_dir" ]; then
-    echo "install_dir exists"
-else
-    mkdir $install_dir
+if [ ! -e "$BUILD_DIR" ]; then
+    mkdir -p $BUILD_DIR
+fi
+
+if [ ! -e "$INSTALL_DIR" ]; then
+    mkdir -p $INSTALL_DIR
 fi
 
 # Array of file lists [file_name, URL]
@@ -33,7 +43,7 @@ declare -A file_list=(
 # Function to check if a file exists in the download directory
 file_exists() {
     local filename="$1"
-    [[ -f "$download_dir/$filename" ]]
+    [[ -f "$DOWNLOAD_DIR/$filename" ]]
 }
 
 # Loop until all files are available in the download directory
@@ -46,7 +56,7 @@ while [[ ${#file_list[@]} -gt 0 ]]; do
             # echo "File '$file' not found. Downloading..."
             url="${file_list[$file]}"
             # Download the file
-            curl -o "$download_dir/$file" "$url"
+            curl -o "$DOWNLOAD_DIR/$file" "$url"
             if [[ $? -eq 0 ]]; then
                 # echo "File '$file' downloaded successfully"
                 unset 'file_list[$file]'  # Remove the file from the list
@@ -57,77 +67,134 @@ while [[ ${#file_list[@]} -gt 0 ]]; do
     done
 done
 
+if [ ! -e "$DOWNLOAD_DIR/guile" ]; then
+    cd $DOWNLOAD_DIR
+    git clone -b "${GUILE_GIT_BRANCH}" "${GUILE_GIT_URL}"
+    cd $WORK_DIR
+fi
 
-# Export working folder
-export WORK_DIR=$PWD
-export GUILE_AUTOMATIC_BASE_DIR="${WORK_DIR}/install_dir"
+# Array of source lists [file_name, tar balls]
+declare -A source_list=(
+    ["gc-7.2"]="gc-7.2e.tar.gz"
+    ["libiconv-1.14"]="libiconv-1.14.tar.gz"
+    ["gmp-6.1.0"]="gmp-6.1.0.tar.xz"
+    ["libffi-3.2.1"]="libffi-3.2.1.tar.gz"
+    ["libtool-2.4.6"]="libtool-2.4.6.tar.gz"
+    ["libunistring-1.1"]="libunistring-1.1.tar.xz"
+    ["gettext-0.20.2"]="gettext-0.20.2.tar.xz"
+)
 
-wget -O /tmp/Ubuntu.iso https://releases.ubuntu.com/20.04/ubuntu-20.04-desktop-amd64.iso 
+# Loop until all source files are available in the build directory
+echo "Extracting source files..."
+while [[ ${#source_list[@]} -gt 0 ]]; do
+    for source in "${!source_list[@]}"; do
+        if [ -d "${BUILD_DIR}/${source}" ]; then
+            # echo "Source '$source' exists"
+            unset 'source_list[$source]'  # Remove the source file from the list
+        else
+            # echo "'$source' not exit. Extracting..."
+            tarball="${source_list[$source]}"
+            tar -xf "${DOWNLOAD_DIR}/${tarball}" -C "${BUILD_DIR}"
+            if [[ $? -eq 0 ]]; then
+                # echo "File '$source' extract successfully"
+                unset 'source_list[$source]'  # Remove the file from the list
+            else
+                echo "Failed to extract '$source'"
+            fi
+        fi
+    done
+done
 
-export CC=x86_64-w64-mingw32-gcc
-export CC_FOR_BUILD=x86_64-linux-gnu-gcc
-export CPP_FOR_BUILD=x86_64-linux-gnu-cpp
-export BUILD=x86_64-pc-linux-gnu
-export HOST_CC=x86_64-w64-mingw32
+if [ ! -e "${BUILD_DIR}/guile-linux" ]; then
+    cp -rf "${DOWNLOAD_DIR}/guile" "${BUILD_DIR}/guile-linux"
+fi
 
-export PREFIX="${GUILE_AUTOMATIC_BASE_DIR}/binaries/guile-${HOST_CC}"
-export WIN_CFLAGS="-I${PREFIX}/include -I${PREFIX}/lib/libffi-3.2.1/include"
-export WIN_CXXFLAGS="-I${PREFIX}/include"
-export WIN_LDFLAGS="-L${PREFIX}/lib"
+if [ ! -e "${BUILD_DIR}/guile-windows" ]; then
+    cp -rf "${DOWNLOAD_DIR}/guile" "${BUILD_DIR}/guile-windows"
+fi
 
-cd $WORK_DIR
-cd libiconv-1.14
-make distclean
-./configure --host="${HOST_CC}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="-I${PREFIX}/include --std=gnu89" LDFLAGS="-L${PREFIX}/lib" CXXFLAGS="-I${PREFIX}/include"
-make -j8
-make install
+#############################################################################
 
-cd $WORK_DIR
-cd gmp-6.1.0
-make distclean
-./configure --host="${HOST_CC}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
-make -j8
-make install
+# The source codes are ready, build a Linux bootstrap guile first.
+cd "${BUILD_DIR}/guile-linux"
+if [ ! -f "Makefile" ]; then
+    ./autogen.sh
+    ./configure --without-libiconv-prefix --with-threads --disable-deprecated --prefix=/usr/local CPPFLAGS='-I/usr/include' LDFLAGS='-L/usr/lib/x86_64-linux-gnu'
+fi
+if [ ! -f "meta/guile" ]; then
+    make -j16
+fi
 
-cd $WORK_DIR
-cd libffi-3.2.1
-make distclean
-./configure --host="${HOST_CC}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
-make -j8
-make install
+# Define environment variables for Mingw-64 cross compiler
+export CC="x86_64-w64-mingw32-gcc"
+export CC_FOR_BUILD="x86_64-linux-gnu-gcc"
+export CPP_FOR_BUILD="x86_64-linux-gnu-cpp"
 
-cd $WORK_DIR
-cd libtool-2.4.6
-make distclean
-./configure --host="${HOST_CC}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
-make -j8
-make install
+# Ready for buiding dependencies
 
-cd $WORK_DIR
-cd libunistring-1.1
-make distclean
-./configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath --prefix "${PREFIX}" --with-libiconv-prefix="${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
-make -j8
-make install
+# libiconv-1.14
+cd "${BUILD_DIR}/libiconv-1.14"
+if [ ! -f "Makefile" ]; then
+    ./configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="-I${PREFIX}/include --std=gnu89" LDFLAGS="-L${PREFIX}/lib" CXXFLAGS="-I${PREFIX}/include"
+fi
+make -j16 && make install
 
-cd $WORK_DIR
-cd gettext-0.20.2
-make distclean
-./configure --host="${HOST_CC}" --build="${BUILD}" --disable-threads --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS} -O2" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS} -O2"
-make -j8
-make install
+# gmp-6.1.0
+cd "${BUILD_DIR}/gmp-6.1.0"
+if [ ! -f "Makefile" ]; then
+    ./configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+fi
+make -j16 && make install
 
-cd $WORK_DIR
-cd gc-7.2/libatomic_ops
-make distclean
-./configure --host="${HOST_CC}" --build="${BUILD}" --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}"
-make -j8
-make install
+# libffi-3.2.1
+cd "${BUILD_DIR}/libffi-3.2.1"
+if [ ! -f "Makefile" ]; then
+    ./configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+fi
+make -j16 && make install
 
-cd $WORK_DIR
-cd gc-7.2
+# libtool-2.4.6
+cd "${BUILD_DIR}/libtool-2.4.6"
+if [ ! -f "Makefile" ]; then
+    ./configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+fi
+make -j16 && make install
+
+# libunistring-1.1
+cd "${BUILD_DIR}/libunistring-1.1"
+if [ ! -f "Makefile" ]; then
+    ./configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath --prefix "${PREFIX}" --with-libiconv-prefix="${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+fi
+make -j16 && make install
+
+# gettext-0.20.2
+cd "${BUILD_DIR}/gettext-0.20.2"
+if [ ! -f "Makefile" ]; then
+    ./configure --host="${HOST_CC}" --build="${BUILD}" --disable-threads --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS} -O2" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS} -O2"
+fi
+make -j16 && make install
+
+# gc-7.2/libatomic_ops
+cd "${BUILD_DIR}/gc-7.2/libatomic_ops"
+if [ ! -f "Makefile" ]; then
+    ./configure --host="${HOST_CC}" --build="${BUILD}" --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}"
+fi
+make -j16 && make install
+cd "${BUILD_DIR}/gc-7.2"
 make -f Makefile.direct CC="${HOST_CC}-gcc" CXX="${HOST_CC}-g++" AS="${HOST_CC}-as" RANLIB="${HOST_CC}-ranlib" HOSTCC=gcc AO_INSTALL_DIR="${PREFIX}" gc.a
 cp gc.a "${PREFIX}/lib/libgc.a"
 cp -r include "${PREFIX}/include/gc"
 
-echo "==============================================================="
+# guile-windows
+cd "${BUILD_DIR}/guile-windows"
+if [ ! -f "Makefile" ]; then
+    ./autogen.sh
+    ./configure --host="${HOST_CC}" --build="${BUILD}" --prefix="${PREFIX}/guile"\
+    --enable-mini-gmp --enable-static=yes --enable-shared=no --disable-jit\
+    --disable-rpath --enable-debug-malloc --enable-guile-debug --disable-deprecated\
+    --with-sysroot="${PREFIX}" --without-threads PKG_CONFIG=true\
+    BDW_GC_CFLAGS="-I${PREFIX}/include" BDW_GC_LIBS="-L${PREFIX}/lib -lgc"\
+    LIBFFI_CFLAGS="-I${PREFIX}/include" LIBFFI_LIBS="-L${PREFIX}/lib -lffi" GUILE_FOR_BUILD="${BUILD_DIR}/guile-linux/meta/guile"\
+    CFLAGS="${WIN_CFLAGS} -DGC_NO_DLL" LDFLAGS="${WIN_LDFLAGS} -lwinpthread" CXXFLAGS="${WIN_CXXFLAGS}"
+fi
+make -j16
