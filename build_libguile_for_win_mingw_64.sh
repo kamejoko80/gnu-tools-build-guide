@@ -3,16 +3,20 @@
 # Define environment variables
 export GUILE_GIT_BRANCH="wip-mingw-3.0.7"
 export GUILE_GIT_URL="https://gitlab.com/janneke/guile.git"
-export BUILD="x86_64-pc-linux-gnu"
-export HOST_CC="x86_64-w64-mingw32"
+export TARGET="arm-none-eabi"
 export WORK_DIR=$PWD
 export DOWNLOAD_DIR="${WORK_DIR}/download"
 export INSTALL_DIR="${WORK_DIR}/install"
 export BUILD_DIR="${WORK_DIR}/build"
-export PREFIX="${INSTALL_DIR}/binaries/guile-${HOST_CC}"
-export WIN_CFLAGS="-I${PREFIX}/include -I${PREFIX}/lib/libffi-3.2.1/include"
-export WIN_CXXFLAGS="-I${PREFIX}/include"
-export WIN_LDFLAGS="-L${PREFIX}/lib"
+export PREFIX_WIN="${INSTALL_DIR}/x86_64-w64-mingw32"
+export PREFIX_LINUX="${INSTALL_DIR}/x86_64-pc-linux-gnu"
+export PREFIX_TARGET="${INSTALL_DIR}/custom-arm-none-eabi"
+export WIN_CFLAGS="-I${PREFIX_WIN}/include -I${PREFIX_WIN}/lib/libffi-3.2.1/include"
+export WIN_CXXFLAGS="-I${PREFIX_WIN}/include"
+export WIN_LDFLAGS="-L${PREFIX_WIN}/lib"
+
+# export PATH for the boostrap Linux arm-none-eabi-gcc
+export PATH=$PATH:"${PREFIX_LINUX}/bin"
 
 echo "====== Build Libguile For Windows Mingw-64 ======"
 read -n 1 -p "Press return to continue"
@@ -31,9 +35,16 @@ fi
 
 # Array of file lists [file_name, URL]
 declare -A file_list=(
+    ["gmp-6.1.0.tar.xz"]="https://ftp.gnu.org/gnu/gmp/gmp-6.1.0.tar.xz"
+    ["mpfr-4.2.0.tar.gz"]="https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.0.tar.gz"
+    ["mpc-1.3.1.tar.gz"]="https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz"
+    ["binutils-2.40.tar.gz"]="https://ftp.gnu.org/gnu/binutils/binutils-2.40.tar.gz"
+    ["gcc-13.1.0.tar.gz"]="https://ftp.gnu.org/gnu/gcc/gcc-13.1.0/gcc-13.1.0.tar.gz"
+    ["newlib-4.3.0.20230120.tar.gz"]="ftp://sourceware.org/pub/newlib/newlib-4.3.0.20230120.tar.gz"
+    ["expat-2.5.0.tar.gz"]="https://github.com/libexpat/libexpat/releases/download/R_2_5_0/expat-2.5.0.tar.gz"
+    ["xz-5.4.3.tar.gz"]="https://github.com/tukaani-project/xz/releases/download/v5.4.3/xz-5.4.3.tar.gz"
     ["gc-7.2e.tar.gz"]="https://www.hboehm.info/gc/gc_source/gc-7.2e.tar.gz"
     ["libiconv-1.14.tar.gz"]="https://ftp.gnu.org/gnu/libiconv/libiconv-1.14.tar.gz"
-    ["gmp-6.1.0.tar.xz"]="https://ftp.gnu.org/gnu/gmp/gmp-6.1.0.tar.xz"
     ["libffi-3.2.1.tar.gz"]="https://gcc.gnu.org/pub/libffi/libffi-3.2.1.tar.gz"
     ["libtool-2.4.6.tar.gz"]="https://ftp.gnu.org/gnu/libtool/libtool-2.4.6.tar.gz"
     ["libunistring-1.1.tar.xz"]="https://ftp.gnu.org/gnu/libunistring/libunistring-1.1.tar.xz"
@@ -56,7 +67,7 @@ while [[ ${#file_list[@]} -gt 0 ]]; do
             # echo "File '$file' not found. Downloading..."
             url="${file_list[$file]}"
             # Download the file
-            curl -o "$DOWNLOAD_DIR/$file" "$url"
+            wget -P "$DOWNLOAD_DIR" "$url"
             if [[ $? -eq 0 ]]; then
                 # echo "File '$file' downloaded successfully"
                 unset 'file_list[$file]'  # Remove the file from the list
@@ -75,9 +86,16 @@ fi
 
 # Array of source lists [file_name, tar balls]
 declare -A source_list=(
+    ["gmp-6.1.0"]="gmp-6.1.0.tar.xz"
+    ["mpfr-4.2.0"]="mpfr-4.2.0.tar.gz"
+    ["mpc-1.3.1"]="mpc-1.3.1.tar.gz"
+    ["binutils-2.40"]="binutils-2.40.tar.gz"
+    ["gcc-13.1.0"]="gcc-13.1.0.tar.gz"
+    ["newlib-4.3.0.20230120"]="newlib-4.3.0.20230120.tar.gz"
+    ["expat-2.5.0"]="expat-2.5.0.tar.gz"
+    ["xz-5.4.3"]="xz-5.4.3.tar.gz"
     ["gc-7.2"]="gc-7.2e.tar.gz"
     ["libiconv-1.14"]="libiconv-1.14.tar.gz"
-    ["gmp-6.1.0"]="gmp-6.1.0.tar.xz"
     ["libffi-3.2.1"]="libffi-3.2.1.tar.gz"
     ["libtool-2.4.6"]="libtool-2.4.6.tar.gz"
     ["libunistring-1.1"]="libunistring-1.1.tar.xz"
@@ -97,6 +115,12 @@ while [[ ${#source_list[@]} -gt 0 ]]; do
             tar -xf "${DOWNLOAD_DIR}/${tarball}" -C "${BUILD_DIR}"
             if [[ $? -eq 0 ]]; then
                 # echo "File '$source' extract successfully"
+                if [ ! -e "${BUILD_DIR}/${source}-build-windows" ]; then
+                    mkdir -p "${BUILD_DIR}/${source}-build-windows"
+                fi
+                if [ ! -e "${BUILD_DIR}/${source}-build-linux" ]; then
+                    mkdir -p "${BUILD_DIR}/${source}-build-linux"
+                fi
                 unset 'source_list[$source]'  # Remove the file from the list
             else
                 echo "Failed to extract '$source'"
@@ -115,86 +139,197 @@ fi
 
 #############################################################################
 
-# The source codes are ready, build a Linux bootstrap guile first.
+################# Build Linux bootstrap arm-none-eabi-gcc ###################
+
+# gmp-6.1.0
+cd "${BUILD_DIR}/gmp-6.1.0-build-linux"
+if [ ! -f "Makefile" ]; then
+    ../gmp-6.1.0/configure --prefix="${PREFIX_LINUX}" --enable-static --disable-rpath\
+    CPPFLAGS='-I/usr/include' LDFLAGS='-L/usr/lib/x86_64-linux-gnu'
+fi
+make -j16 && make install
+
+# mpfr-4.2.0
+cd "${BUILD_DIR}/mpfr-4.2.0-build-linux"
+if [ ! -f "Makefile" ]; then
+    ../mpfr-4.2.0/configure --prefix="${PREFIX_LINUX}" --with-gmp="${PREFIX_LINUX}"\
+    --disable-shared --enable-static
+fi
+make -j16 && make install
+
+# mpc-1.3.1
+cd "${BUILD_DIR}/mpc-1.3.1-build-linux"
+if [ ! -f "Makefile" ]; then
+    ../mpc-1.3.1/configure --prefix="${PREFIX_LINUX}" --with-gmp="${PREFIX_LINUX}"\
+    --with-mpfr="${PREFIX_LINUX}" --disable-shared --enable-static
+fi
+make -j16 && make install
+
+# binutils-2.40
+cd "${BUILD_DIR}/binutils-2.40-build-linux"
+if [ ! -f "Makefile" ]; then
+    ../binutils-2.40/configure --prefix="${PREFIX_LINUX}" --target="${TARGET}"\
+    --with-gmp="${PREFIX_LINUX}" --with-mpfr="${PREFIX_LINUX}" --with-mpc="${PREFIX_LINUX}"
+fi
+make -j16 && make install
+
+# gcc-13.1.0
+cd "${BUILD_DIR}/gcc-13.1.0-build-linux"
+if [ ! -f "Makefile" ]; then
+    ../gcc-13.1.0/configure --prefix="${PREFIX_LINUX}" --target="${TARGET}"\
+    --with-gmp="${PREFIX_LINUX}" --with-mpfr="${PREFIX_LINUX}" --with-mpc="${PREFIX_LINUX}"\
+    --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++\
+    --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib\
+    --with-headers="${BUILD_DIR}/newlib-4.3.0.20230120/newlib/libc/include"
+fi
+make -j16 && make install
+
+################# Build Linux bootstrap guile #################
 cd "${BUILD_DIR}/guile-linux"
 if [ ! -f "Makefile" ]; then
     ./autogen.sh
-    ./configure --without-libiconv-prefix --with-threads --disable-deprecated --prefix=/usr/local CPPFLAGS='-I/usr/include' LDFLAGS='-L/usr/lib/x86_64-linux-gnu'
+    ./configure --without-libiconv-prefix --with-threads --disable-deprecated\
+    --prefix=/usr/local CPPFLAGS='-I/usr/include' LDFLAGS='-L/usr/lib/x86_64-linux-gnu'
 fi
 if [ ! -f "meta/guile" ]; then
     make -j16
 fi
 
+#############################################################################
 # Define environment variables for Mingw-64 cross compiler
+export BUILD="x86_64-pc-linux-gnu"
+export HOST_CC="x86_64-w64-mingw32"
 export CC="x86_64-w64-mingw32-gcc"
 export CC_FOR_BUILD="x86_64-linux-gnu-gcc"
 export CPP_FOR_BUILD="x86_64-linux-gnu-cpp"
 
-# Ready for buiding dependencies
+################# Ready for buiding dependencies #################
 
 # libiconv-1.14
-cd "${BUILD_DIR}/libiconv-1.14"
+cd "${BUILD_DIR}/libiconv-1.14-build-windows"
 if [ ! -f "Makefile" ]; then
-    ./configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="-I${PREFIX}/include --std=gnu89" LDFLAGS="-L${PREFIX}/lib" CXXFLAGS="-I${PREFIX}/include"
+    ../libiconv-1.14/configure --host="${HOST_CC}" --build="${BUILD}" --enable-static\
+    --disable-rpath --prefix "${PREFIX_WIN}" CFLAGS="-I${PREFIX_WIN}/include --std=gnu89"\
+    LDFLAGS="-L${PREFIX_WIN}/lib" CXXFLAGS="-I${PREFIX_WIN}/include"
 fi
 make -j16 && make install
 
 # gmp-6.1.0
-cd "${BUILD_DIR}/gmp-6.1.0"
+cd "${BUILD_DIR}/gmp-6.1.0-build-windows"
 if [ ! -f "Makefile" ]; then
-    ./configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+    ../gmp-6.1.0/configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath\
+    --prefix="${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+fi
+make -j16 && make install
+
+# mpfr-4.2.0
+cd "${BUILD_DIR}/mpfr-4.2.0-build-windows"
+if [ ! -f "Makefile" ]; then
+    ../mpfr-4.2.0/configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-shared\
+    --prefix="${PREFIX_WIN}" --with-gmp="${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+fi
+make -j16 && make install
+
+# mpc-1.3.1
+cd "${BUILD_DIR}/mpc-1.3.1-build-windows"
+if [ ! -f "Makefile" ]; then
+    ../mpc-1.3.1/configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-shared\
+    --prefix="${PREFIX_WIN}" --with-gmp="${PREFIX_WIN}" --with-mpfr="${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS}"\
+    LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
 fi
 make -j16 && make install
 
 # libffi-3.2.1
-cd "${BUILD_DIR}/libffi-3.2.1"
+cd "${BUILD_DIR}/libffi-3.2.1-build-windows"
 if [ ! -f "Makefile" ]; then
-    ./configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+    ../libffi-3.2.1/configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath\
+    --prefix="${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
 fi
 make -j16 && make install
 
 # libtool-2.4.6
-cd "${BUILD_DIR}/libtool-2.4.6"
+cd "${BUILD_DIR}/libtool-2.4.6-build-windows"
 if [ ! -f "Makefile" ]; then
-    ./configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+    ../libtool-2.4.6/configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath\
+    --prefix="${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
 fi
 make -j16 && make install
 
 # libunistring-1.1
-cd "${BUILD_DIR}/libunistring-1.1"
+cd "${BUILD_DIR}/libunistring-1.1-build-windows"
 if [ ! -f "Makefile" ]; then
-    ./configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath --prefix "${PREFIX}" --with-libiconv-prefix="${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+    ../libunistring-1.1-build/configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-rpath\
+    --prefix="${PREFIX_WIN}" --with-libiconv-prefix="${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
 fi
 make -j16 && make install
 
 # gettext-0.20.2
-cd "${BUILD_DIR}/gettext-0.20.2"
+cd "${BUILD_DIR}/gettext-0.20.2-build-windows"
 if [ ! -f "Makefile" ]; then
-    ./configure --host="${HOST_CC}" --build="${BUILD}" --disable-threads --enable-static --disable-rpath --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS} -O2" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS} -O2"
+    ../gettext-0.20.2/configure --host="${HOST_CC}" --build="${BUILD}" --disable-threads --enable-static\
+    --disable-rpath --prefix="${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS} -O2" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS} -O2"
 fi
 make -j16 && make install
 
 # gc-7.2/libatomic_ops
 cd "${BUILD_DIR}/gc-7.2/libatomic_ops"
 if [ ! -f "Makefile" ]; then
-    ./configure --host="${HOST_CC}" --build="${BUILD}" --prefix "${PREFIX}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}"
+    ./configure --host="${HOST_CC}" --build="${BUILD}" --prefix "${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}"
 fi
 make -j16 && make install
 cd "${BUILD_DIR}/gc-7.2"
-make -f Makefile.direct CC="${HOST_CC}-gcc" CXX="${HOST_CC}-g++" AS="${HOST_CC}-as" RANLIB="${HOST_CC}-ranlib" HOSTCC=gcc AO_INSTALL_DIR="${PREFIX}" gc.a
-cp gc.a "${PREFIX}/lib/libgc.a"
-cp -r include "${PREFIX}/include/gc"
+make -f Makefile.direct CC="${HOST_CC}-gcc" CXX="${HOST_CC}-g++" AS="${HOST_CC}-as" RANLIB="${HOST_CC}-ranlib" HOSTCC=gcc AO_INSTALL_DIR="${PREFIX_WIN}" gc.a
+cp gc.a "${PREFIX_WIN}/lib/libgc.a"
+cp -r include "${PREFIX_WIN}/include/gc"
 
 # guile-windows
 cd "${BUILD_DIR}/guile-windows"
 if [ ! -f "Makefile" ]; then
     ./autogen.sh
-    ./configure --host="${HOST_CC}" --build="${BUILD}" --prefix="${PREFIX}/guile"\
+    ./configure --host="${HOST_CC}" --build="${BUILD}" --prefix="${PREFIX_WIN}/guile"\
     --enable-mini-gmp --enable-static=yes --enable-shared=no --disable-jit\
     --disable-rpath --enable-debug-malloc --enable-guile-debug --disable-deprecated\
-    --with-sysroot="${PREFIX}" --without-threads PKG_CONFIG=true\
-    BDW_GC_CFLAGS="-I${PREFIX}/include" BDW_GC_LIBS="-L${PREFIX}/lib -lgc"\
-    LIBFFI_CFLAGS="-I${PREFIX}/include" LIBFFI_LIBS="-L${PREFIX}/lib -lffi" GUILE_FOR_BUILD="${BUILD_DIR}/guile-linux/meta/guile"\
+    --with-sysroot="${PREFIX_WIN}" --without-threads PKG_CONFIG=true\
+    BDW_GC_CFLAGS="-I${PREFIX_WIN}/include" BDW_GC_LIBS="-L${PREFIX_WIN}/lib -lgc"\
+    LIBFFI_CFLAGS="-I${PREFIX_WIN}/include" LIBFFI_LIBS="-L${PREFIX_WIN}/lib -lffi" GUILE_FOR_BUILD="${BUILD_DIR}/guile-linux/meta/guile"\
     CFLAGS="${WIN_CFLAGS} -DGC_NO_DLL" LDFLAGS="${WIN_LDFLAGS} -lwinpthread" CXXFLAGS="${WIN_CXXFLAGS}"
 fi
 make -j16
+
+#############################################################################
+# Build arm-none-eabi-gcc on Windows Mingw-64
+
+# binutils-2.40
+cd "${BUILD_DIR}/binutils-2.40-build-windows"
+if [ ! -f "Makefile" ]; then
+    ../binutils-2.40/configure --host="${HOST_CC}" --build="${BUILD}" --target="${TARGET}" --prefix="${PREFIX_TARGET}"\
+    --with-gmp="${PREFIX_WIN}" --with-mpfr="${PREFIX_WIN}" --with-mpc="${PREFIX_WIN}"\
+    CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+fi
+make -j16 && make install
+
+# gcc-13.1.0
+cd "${BUILD_DIR}/gcc-13.1.0-build-windows"
+../gcc-13.1.0/configure --host="${HOST_CC}" --build="${BUILD}" --target="${TARGET}" --prefix="${PREFIX_TARGET}"\
+--with-gmp="${PREFIX_WIN}" --with-mpfr="${PREFIX_WIN}" --with-mpc="${PREFIX_WIN}"\
+--disable-multilib --disable-shared --disable-nls --enable-languages=c,c++\
+--with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --without-headers\
+CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+make -j16 && make install
+
+# newlib-4.3.0.20230120
+cd "${BUILD_DIR}/newlib-4.3.0.20230120-build-windows"
+if [ ! -f "Makefile" ]; then
+    ../newlib-4.3.0.20230120/configure --host="${HOST_CC}" --build="${BUILD}" --target="${TARGET}" --prefix="${PREFIX_TARGET}"\
+    --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++\
+    --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --disable-newlib-supplied-syscalls
+fi
+make -j16 && make install
+
+# gcc-13.1.0
+cd "${BUILD_DIR}/gcc-13.1.0-build-windows"
+../gcc-13.1.0/configure --host="${HOST_CC}" --build="${BUILD}" --target="${TARGET}" --prefix="${PREFIX_TARGET}"\
+--with-gmp="${PREFIX_WIN}" --with-mpfr="${PREFIX_WIN}" --with-mpc="${PREFIX_WIN}"\
+--disable-multilib --disable-shared --disable-nls --enable-languages=c,c++\
+--with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib\
+CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
