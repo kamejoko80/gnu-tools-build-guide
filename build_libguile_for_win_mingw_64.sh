@@ -294,7 +294,23 @@ if [ ! -f "Makefile" ]; then
     LIBFFI_CFLAGS="-I${PREFIX_WIN}/include" LIBFFI_LIBS="-L${PREFIX_WIN}/lib -lffi" GUILE_FOR_BUILD="${BUILD_DIR}/guile-linux/meta/guile"\
     CFLAGS="${WIN_CFLAGS} -DGC_NO_DLL" LDFLAGS="${WIN_LDFLAGS} -lwinpthread" CXXFLAGS="${WIN_CXXFLAGS}"
 fi
-make -j16
+make -j16 && make install
+
+# expat-2.5.0
+cd "${BUILD_DIR}/expat-2.5.0-build-windows"
+if [ ! -f "Makefile" ]; then
+    ../expat-2.5.0/configure --host="${HOST_CC}" --build="${BUILD}" --disable-shared\
+    --prefix="${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+fi
+make -j16 && make install
+
+# xz-5.4.3
+cd "${BUILD_DIR}/xz-5.4.3-build-windows"
+if [ ! -f "Makefile" ]; then
+    ../xz-5.4.3/configure --host="${HOST_CC}" --build="${BUILD}" --disable-shared\
+    --prefix="${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+fi
+make -j16 && make install
 
 #############################################################################
 # Build arm-none-eabi-gcc on Windows Mingw-64
@@ -312,8 +328,8 @@ make -j16 && make install
 cd "${BUILD_DIR}/gcc-13.1.0-build-windows"
 ../gcc-13.1.0/configure --host="${HOST_CC}" --build="${BUILD}" --target="${TARGET}" --prefix="${PREFIX_TARGET}"\
 --with-gmp="${PREFIX_WIN}" --with-mpfr="${PREFIX_WIN}" --with-mpc="${PREFIX_WIN}"\
---disable-multilib --disable-shared --disable-nls --enable-languages=c,c++\
---with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --without-headers\
+--disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7\
+--with-fpu=neon-vfpv4 --with-float=hard --with-newlib --without-headers\
 CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
 make -j16 && make install
 
@@ -321,8 +337,8 @@ make -j16 && make install
 cd "${BUILD_DIR}/newlib-4.3.0.20230120-build-windows"
 if [ ! -f "Makefile" ]; then
     ../newlib-4.3.0.20230120/configure --host="${HOST_CC}" --build="${BUILD}" --target="${TARGET}" --prefix="${PREFIX_TARGET}"\
-    --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++\
-    --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --disable-newlib-supplied-syscalls
+    --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++ --with-cpu=cortex-a7 --with-fpu=neon-vfpv4\
+    --with-float=hard --disable-newlib-supplied-syscalls
 fi
 make -j16 && make install
 
@@ -333,3 +349,13 @@ cd "${BUILD_DIR}/gcc-13.1.0-build-windows"
 --disable-multilib --disable-shared --disable-nls --enable-languages=c,c++\
 --with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib\
 CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+
+# gdb-13.1
+cd "${BUILD_DIR}/gdb-13.1-build-windows"
+if [ ! -f "Makefile" ]; then
+    ../gdb-13.1/configure --host="${HOST_CC}" --build="${BUILD}" --target="${TARGET}" --prefix="${PREFIX_TARGET}"\
+    --with-gmp="${PREFIX_WIN}" --with-mpfr="${PREFIX_WIN}" --with-mpc="${PREFIX_WIN}"\
+    --with-expat="${PREFIX_WIN}" --with-lzma="${PREFIX_WIN}" --with-guile="${PREFIX_WIN}"\
+    CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+fi
+make -j16 && make install
