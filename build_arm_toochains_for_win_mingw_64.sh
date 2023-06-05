@@ -9,9 +9,6 @@ export BUILD_DIR="${WORK_DIR}/build"
 export PREFIX_WIN="${INSTALL_DIR}/custom-arm-none-eabi"
 export PREFIX_LINUX="${INSTALL_DIR}/x86_64-pc-linux-gnu"
 export PREFIX_TARGET="${PREFIX_WIN}"
-export WIN_CFLAGS="-I${PREFIX_WIN}/include"
-export WIN_CXXFLAGS="-I${PREFIX_WIN}/include"
-export WIN_LDFLAGS="-L${PREFIX_WIN}/lib"
 
 # export PATH for the boostrap Linux arm-none-eabi-gcc
 export PATH=$PATH:"${PREFIX_LINUX}/bin"
@@ -166,61 +163,49 @@ export BUILD="x86_64-pc-linux-gnu"
 export HOST_CC="x86_64-w64-mingw32"
 export CC="x86_64-w64-mingw32-gcc"
 export CC_FOR_BUILD="x86_64-linux-gnu-gcc"
-export CPP_FOR_BUILD="x86_64-linux-gnu-cpp"
 
 ################# Ready for buiding dependencies #################
-
-# libiconv-1.14
-cd "${BUILD_DIR}/libiconv-1.14-build-windows"
-if [ ! -f "Makefile" ]; then
-    ../libiconv-1.14/configure --host="${HOST_CC}" --build="${BUILD}" --enable-static \
-    --disable-rpath --prefix "${PREFIX_WIN}" CFLAGS="-I${PREFIX_WIN}/include --std=gnu89" \
-    LDFLAGS="-L${PREFIX_WIN}/lib" CXXFLAGS="-I${PREFIX_WIN}/include"
-fi
-make -j16 && make install
 
 # gmp-6.1.0
 cd "${BUILD_DIR}/gmp-6.1.0-build-windows"
 if [ ! -f "Makefile" ]; then
-    ../gmp-6.1.0/configure --host="${HOST_CC}" --build="${BUILD}" --enable-fft --enable-cxx --disable-shared --enable-static \
-    --prefix="${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+    ../gmp-6.1.0/configure --prefix="${PREFIX_WIN}" --host="${HOST_CC}" --build="${BUILD}" \
+    --enable-fft --enable-cxx --disable-shared --enable-static
 fi
 make -j16 && make install
 
 # mpfr-4.2.0
 cd "${BUILD_DIR}/mpfr-4.2.0-build-windows"
 if [ ! -f "Makefile" ]; then
-    ../mpfr-4.2.0/configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-shared \
-    --prefix="${PREFIX_WIN}" --with-gmp="${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+    ../mpfr-4.2.0/configure --prefix="${PREFIX_WIN}" --host="${HOST_CC}" --build="${BUILD}" \
+    --enable-static --disable-shared --with-gmp="${PREFIX_WIN}"
 fi
 make -j16 && make install
 
 # mpc-1.3.1
 cd "${BUILD_DIR}/mpc-1.3.1-build-windows"
 if [ ! -f "Makefile" ]; then
-    ../mpc-1.3.1/configure --host="${HOST_CC}" --build="${BUILD}" --enable-static --disable-shared \
-    --prefix="${PREFIX_WIN}" --with-gmp="${PREFIX_WIN}" --with-mpfr="${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS}" \
-    LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+    ../mpc-1.3.1/configure --prefix="${PREFIX_WIN}" --host="${HOST_CC}" --build="${BUILD}" \
+    --enable-static --disable-shared \
+    --with-gmp="${PREFIX_WIN}" --with-mpfr="${PREFIX_WIN}"
 fi
 make -j16 && make install
 
 # expat-2.5.0
 cd "${BUILD_DIR}/expat-2.5.0-build-windows"
 if [ ! -f "Makefile" ]; then
-    ../expat-2.5.0/configure --host="${HOST_CC}" --build="${BUILD}" --disable-shared \
-    --prefix="${PREFIX_WIN}" CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+    ../expat-2.5.0/configure --prefix="${PREFIX_WIN}" --host="${HOST_CC}" --build="${BUILD}" --disable-shared
 fi
 make -j16 && make install
 
-#############################################################################
-# Build arm-none-eabi-gcc on Windows Mingw-64
+############################################################################
+Build arm-none-eabi-gcc on Windows Mingw-64
 
 # binutils-2.40
 cd "${BUILD_DIR}/binutils-2.40-build-windows"
 if [ ! -f "Makefile" ]; then
     ../binutils-2.40/configure --host="${HOST_CC}" --build="${BUILD}" --target="${TARGET}" --prefix="${PREFIX_TARGET}" \
-    --with-gmp="${PREFIX_WIN}" --with-mpfr="${PREFIX_WIN}" --with-mpc="${PREFIX_WIN}" \
-    CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+    --with-gmp="${PREFIX_WIN}" --with-mpfr="${PREFIX_WIN}" --with-mpc="${PREFIX_WIN}"
 fi
 make -j16 && make install
 
@@ -230,8 +215,7 @@ cd "${BUILD_DIR}/gcc-13.1.0-build-windows"
 ../gcc-13.1.0/configure --prefix="${PREFIX_TARGET}" --build="${BUILD}" --host="${HOST_CC}" --target="${TARGET}" \
 --with-gmp="${PREFIX_WIN}" --with-mpfr="${PREFIX_WIN}" --with-mpc="${PREFIX_WIN}" \
 --disable-multilib --disable-shared --enable-static --disable-nls --enable-languages=c,c++ \
---with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --without-headers \
-CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+--with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib --without-headers
 make -j16 && make install
 
 # newlib-4.3.0.20230120
@@ -249,8 +233,7 @@ cd "${BUILD_DIR}/gcc-13.1.0-build-windows"
 ../gcc-13.1.0/configure --prefix="${PREFIX_TARGET}" --build="${BUILD}" --host="${HOST_CC}" --target="${TARGET}" \
 --with-gmp="${PREFIX_WIN}" --with-mpfr="${PREFIX_WIN}" --with-mpc="${PREFIX_WIN}" \
 --disable-multilib --disable-shared --enable-static --disable-nls --enable-languages=c,c++ \
---with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib \
-CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+--with-cpu=cortex-a7 --with-fpu=neon-vfpv4 --with-float=hard --with-newlib
 make -j16 && make install
 
 # gdb-13.1
@@ -260,7 +243,6 @@ if [ ! -f "Makefile" ]; then
     --enable-64-bit-bfd --disable-werror --disable-win32-registry --disable-rpath \
     --with-system-gdbinit="${PREFIX_TARGET}/etc/gdbinit" \
     --with-gmp="${PREFIX_WIN}" --with-mpfr="${PREFIX_WIN}" --with-mpc="${PREFIX_WIN}" \
-    --with-expat="${PREFIX_WIN}" \
-    CFLAGS="${WIN_CFLAGS}" LDFLAGS="${WIN_LDFLAGS}" CXXFLAGS="${WIN_CXXFLAGS}"
+    --with-expat="${PREFIX_WIN}"
 fi
 make -j16 && make install
