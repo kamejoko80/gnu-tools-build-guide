@@ -1,0 +1,12 @@
+diff -Naru libiconv-1.17/include/iconv.h.in libiconv-1.17-modified/include/iconv.h.in
+--- libiconv-1.17/include/iconv.h.in	2022-02-12 20:14:59.000000000 +0700
++++ libiconv-1.17-modified/include/iconv.h.in	2023-06-06 20:07:36.794038682 +0700
+@@ -21,7 +21,7 @@
+ #define _LIBICONV_H
+ 
+ #define _LIBICONV_VERSION 0x0111    /* version number: (major<<8) + minor */
+-extern @DLL_VARIABLE@ int _libiconv_version; /* Likewise */
++extern int _libiconv_version; /* Likewise */
+ 
+ /* We would like to #include any system header file which could define
+    iconv_t, 1. in order to eliminate the risk that the user gets compilation
