@@ -138,7 +138,7 @@ if [ ! -f "Makefile" ]; then
     CPPFLAGS='-I/usr/include'  \
     LDFLAGS='-L/usr/lib/x86_64-linux-gnu'
 fi
-make -j16 && make install
+make -j`nproc` && make install
 
 cd "${BUILD_DIR}/mpfr-4.2.0-build-linux"
 if [ ! -f "Makefile" ]; then
@@ -147,7 +147,7 @@ if [ ! -f "Makefile" ]; then
     --with-gmp="${PREFIX_LINUX}" \
     --disable-shared --enable-static
 fi
-make -j16 && make install
+make -j`nproc` && make install
 
 cd "${BUILD_DIR}/mpc-1.3.1-build-linux"
 if [ ! -f "Makefile" ]; then
@@ -157,7 +157,7 @@ if [ ! -f "Makefile" ]; then
     --with-mpfr="${PREFIX_LINUX}" \
     --disable-shared --enable-static
 fi
-make -j16 && make install
+make -j`nproc` && make install
 
 # binutils-2.40
 cd "${BUILD_DIR}/binutils-2.40-build-linux"
@@ -169,7 +169,7 @@ if [ ! -f "Makefile" ]; then
     --with-mpfr="${PREFIX_LINUX}" \
     --with-mpc="${PREFIX_LINUX}"
 fi
-make -j16 && make install
+make -j`nproc` && make install
 
 # gcc-13.1.0
 cd "${BUILD_DIR}/gcc-13.1.0-build-linux"
@@ -190,7 +190,7 @@ if [ ! -f "Makefile" ]; then
     --with-newlib                 \
     --with-headers="${BUILD_DIR}/newlib-4.3.0.20230120/newlib/libc/include"
 fi
-make -j16 && make install
+make -j`nproc` && make install
 
 #############################################################################
 # Define environment variables for Mingw-64 cross compiler
@@ -213,7 +213,7 @@ if [ ! -f "Makefile" ]; then
     LDFLAGS="-L${PREFIX_WIN}/lib" \
     CXXFLAGS="-I${PREFIX_WIN}/include"
 fi
-make -j16 && make install
+make -j`nproc` && make install
 
 cd "${BUILD_DIR}/gettext-0.20.2-build-windows"
 if [ ! -f "Makefile" ]; then
@@ -241,7 +241,7 @@ if [ ! -f "Makefile" ]; then
     --disable-shared         \
     --enable-static
 fi
-make -j16 && make install
+make -j`nproc` && make install
 
 cd "${BUILD_DIR}/mpfr-4.2.0-build-windows"
 if [ ! -f "Makefile" ]; then
@@ -253,7 +253,7 @@ if [ ! -f "Makefile" ]; then
     --disable-shared         \
     --with-gmp="${PREFIX_WIN}"
 fi
-make -j16 && make install
+make -j`nproc` && make install
 
 cd "${BUILD_DIR}/mpc-1.3.1-build-windows"
 if [ ! -f "Makefile" ]; then
@@ -266,7 +266,7 @@ if [ ! -f "Makefile" ]; then
     --with-gmp="${PREFIX_WIN}" \
     --with-mpfr="${PREFIX_WIN}"
 fi
-make -j16 && make install
+make -j`nproc` && make install
 
 cd "${BUILD_DIR}/isl-0.26-build-windows"
 if [ ! -f "Makefile" ]; then
@@ -289,7 +289,7 @@ if [ ! -f "Makefile" ]; then
     --build="${BUILD}"       \
     --disable-shared
 fi
-make -j16 && make install
+make -j`nproc` && make install
 
 ############################################################################
 # Build arm-none-eabi-gcc on Windows Mingw-64
@@ -303,9 +303,12 @@ if [ ! -f "Makefile" ]; then
     --prefix="${PREFIX_TARGET}" \
     --with-gmp="${PREFIX_WIN}"  \
     --with-mpfr="${PREFIX_WIN}" \
-    --with-mpc="${PREFIX_WIN}"
+    --with-mpc="${PREFIX_WIN}"  \
+    CFLAGS="-I${PREFIX_WIN}/include" \
+    LDFLAGS="-L${PREFIX_WIN}/lib"    \
+    CXXFLAGS="-I${PREFIX_WIN}/include"
 fi
-make -j16 && make install
+make -j`nproc` && make install-strip
 
 rm -rf "${BUILD_DIR}/gcc-13.1.0-build-windows/*"
 cd "${BUILD_DIR}/gcc-13.1.0-build-windows"
@@ -327,7 +330,7 @@ cd "${BUILD_DIR}/gcc-13.1.0-build-windows"
 --with-float=hard           \
 --with-newlib               \
 --without-headers
-make -j`nproc` && make install
+make -j`nproc` && make install-strip
 
 cd "${BUILD_DIR}/newlib-4.3.0.20230120-build-windows"
 if [ ! -f "Makefile" ]; then
@@ -345,7 +348,7 @@ if [ ! -f "Makefile" ]; then
     --with-float=hard           \
     --disable-newlib-supplied-syscalls
 fi
-make -j16 && make install
+make -j`nproc` && make install
 
 rm -rf "${BUILD_DIR}/gcc-13.1.0-build-windows/*"
 cd "${BUILD_DIR}/gcc-13.1.0-build-windows"
@@ -366,7 +369,7 @@ cd "${BUILD_DIR}/gcc-13.1.0-build-windows"
 --with-fpu=neon-vfpv4       \
 --with-float=hard           \
 --with-newlib
-make -j16 && make install
+make -j`nproc` && make install-strip
 
 cd "${BUILD_DIR}/gdb-13.1-build-windows"
 if [ ! -f "Makefile" ]; then
@@ -384,7 +387,8 @@ if [ ! -f "Makefile" ]; then
     --with-mpfr="${PREFIX_WIN}" \
     --with-mpc="${PREFIX_WIN}"  \
     --with-expat="${PREFIX_WIN}" \
-    CPPFLAGS="-I/${PREFIX_WIN}/include"  \
-    LDFLAGS="-L/${PREFIX_WIN}/lib -liconv"
+    CFLAGS="-I${PREFIX_WIN}/include" \
+    LDFLAGS="-L${PREFIX_WIN}/lib -liconv -lisl -lgettextlib" \
+    CXXFLAGS="-I${PREFIX_WIN}/include"
 fi
-make make -j`nproc` && make install
+make -j`nproc` && make install-strip
