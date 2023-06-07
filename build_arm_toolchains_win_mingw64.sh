@@ -388,4 +388,3 @@ if [ ! -f "Makefile" ]; then
     LDFLAGS="-L/${PREFIX_WIN}/lib -liconv"
 fi
 make make -j`nproc` && make install
-
