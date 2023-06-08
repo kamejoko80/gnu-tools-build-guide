@@ -206,35 +206,6 @@ export CC_FOR_BUILD="x86_64-linux-gnu-gcc"
 
 ################# Ready for buiding dependencies #################
 
-cd "${BUILD_DIR}/windows/libiconv-1.17-build"
-if [ ! -f "Makefile" ]; then
-    ${SOURCE_DIR}/libiconv-1.17/configure \
-    --host="${HOST_CC}"                   \
-    --build="${BUILD}"                    \
-    --enable-static                       \
-    --disable-rpath                       \
-    --prefix "${PREFIX_TARGET}"           \
-    CFLAGS="-I${PREFIX_TARGET}/include --std=gnu89" \
-    LDFLAGS="-L${PREFIX_TARGET}/lib"      \
-    CXXFLAGS="-I${PREFIX_TARGET}/include"
-fi
-make -j`nproc` && make install
-
-cd "${BUILD_DIR}/windows/gettext-0.20.2-build"
-if [ ! -f "Makefile" ]; then
-    ${SOURCE_DIR}/gettext-0.20.2/configure \
-    --host="${HOST_CC}"                    \
-    --build="${BUILD}"                     \
-    --disable-threads                      \
-    --enable-static                        \
-    --disable-rpath                        \
-    --prefix "${PREFIX_TARGET}"            \
-    CFLAGS="-I${PREFIX_TARGET}/include"    \
-    LDFLAGS="-L${PREFIX_TARGET}/lib"       \
-    CXXFLAGS="-I${PREFIX_TARGET}/include"
-fi
-make -j`nproc` && make install
-
 cd "${BUILD_DIR}/windows/gmp-6.1.0-build"
 if [ ! -f "Makefile" ]; then
     ${SOURCE_DIR}/gmp-6.1.0/configure \
@@ -273,6 +244,66 @@ if [ ! -f "Makefile" ]; then
 fi
 make -j`nproc` && make install
 
+cd "${BUILD_DIR}/windows/expat-2.5.0-build"
+if [ ! -f "Makefile" ]; then
+    ${SOURCE_DIR}/expat-2.5.0/configure \
+    --prefix="${PREFIX_TARGET}"         \
+    --host="${HOST_CC}"                 \
+    --build="${BUILD}"                  \
+    --disable-shared
+fi
+make -j`nproc` && make install
+
+# GDB needs only gmp, mpfr, mpc, expat so we can build it first
+cd "${BUILD_DIR}/windows/gdb-13.1-build"
+if [ ! -f "Makefile" ]; then
+    ${SOURCE_DIR}/gdb-13.1/configure \
+    --host="${HOST_CC}"              \
+    --build="${BUILD}"               \
+    --target="${TARGET}"             \
+    --prefix="${PREFIX_TARGET}"      \
+    --enable-64-bit-bfd              \
+    --disable-werror                 \
+    --disable-nls                    \
+    --disable-win32-registry         \
+    --disable-rpath                  \
+    --with-system-gdbinit="${PREFIX_TARGET}/etc/gdbinit" \
+    --with-gmp="${PREFIX_TARGET}"    \
+    --with-mpfr="${PREFIX_TARGET}"   \
+    --with-mpc="${PREFIX_TARGET}"    \
+    --with-expat="${PREFIX_TARGET}"
+fi
+make -j`nproc` && make install-strip
+
+cd "${BUILD_DIR}/windows/libiconv-1.17-build"
+if [ ! -f "Makefile" ]; then
+    ${SOURCE_DIR}/libiconv-1.17/configure \
+    --host="${HOST_CC}"                   \
+    --build="${BUILD}"                    \
+    --enable-static                       \
+    --disable-rpath                       \
+    --prefix "${PREFIX_TARGET}"           \
+    CFLAGS="-I${PREFIX_TARGET}/include --std=gnu89" \
+    LDFLAGS="-L${PREFIX_TARGET}/lib"      \
+    CXXFLAGS="-I${PREFIX_TARGET}/include"
+fi
+make -j`nproc` && make install
+
+cd "${BUILD_DIR}/windows/gettext-0.20.2-build"
+if [ ! -f "Makefile" ]; then
+    ${SOURCE_DIR}/gettext-0.20.2/configure \
+    --host="${HOST_CC}"                    \
+    --build="${BUILD}"                     \
+    --disable-threads                      \
+    --enable-static                        \
+    --disable-rpath                        \
+    --prefix "${PREFIX_TARGET}"            \
+    CFLAGS="-I${PREFIX_TARGET}/include"    \
+    LDFLAGS="-L${PREFIX_TARGET}/lib"       \
+    CXXFLAGS="-I${PREFIX_TARGET}/include"
+fi
+make -j`nproc` && make install
+
 cd "${BUILD_DIR}/windows/isl-0.26-build"
 if [ ! -f "Makefile" ]; then
     ${SOURCE_DIR}/isl-0.26/configure     \
@@ -283,16 +314,6 @@ if [ ! -f "Makefile" ]; then
     --enable-static                      \
     --with-gmp-prefix="${PREFIX_TARGET}" \
     --prefix="${PREFIX_TARGET}"
-fi
-make -j`nproc` && make install
-
-cd "${BUILD_DIR}/windows/expat-2.5.0-build"
-if [ ! -f "Makefile" ]; then
-    ${SOURCE_DIR}/expat-2.5.0/configure \
-    --prefix="${PREFIX_TARGET}"         \
-    --host="${HOST_CC}"                 \
-    --build="${BUILD}"                  \
-    --disable-shared
 fi
 make -j`nproc` && make install
 
@@ -380,24 +401,4 @@ cd "${BUILD_DIR}/windows/gcc-13.1.0-build"
     CFLAGS="-I${PREFIX_TARGET}/include"   \
     CXXFLAGS="-I${PREFIX_TARGET}/include" \
     LDFLAGS="-L${PREFIX_TARGET}/lib"
-make -j`nproc` && make install-strip
-
-cd "${BUILD_DIR}/windows/gdb-13.1-build"
-if [ ! -f "Makefile" ]; then
-    ${SOURCE_DIR}/gdb-13.1/configure \
-    --host="${HOST_CC}"              \
-    --build="${BUILD}"               \
-    --target="${TARGET}"             \
-    --prefix="${PREFIX_TARGET}"      \
-    --enable-64-bit-bfd              \
-    --disable-werror                 \
-    --disable-nls                    \
-    --disable-win32-registry         \
-    --disable-rpath                  \
-    --with-system-gdbinit="${PREFIX_TARGET}/etc/gdbinit" \
-    --with-gmp="${PREFIX_TARGET}"    \
-    --with-mpfr="${PREFIX_TARGET}"   \
-    --with-mpc="${PREFIX_TARGET}"    \
-    --with-expat="${PREFIX_TARGET}"
-fi
 make -j`nproc` && make install-strip
