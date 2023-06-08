@@ -283,24 +283,24 @@ if [ ! -f "Makefile" ]; then
     --enable-static                       \
     --disable-rpath                       \
     --prefix "${PREFIX_TARGET}"           \
-    CFLAGS="-I${PREFIX_TARGET}/include --std=gnu89" \
-    LDFLAGS="-L${PREFIX_TARGET}/lib"      \
-    CXXFLAGS="-I${PREFIX_TARGET}/include"
+    CFLAGS="-O3 -I${PREFIX_TARGET}/include --std=gnu89" \
+    CXXFLAGS="-O3 -I${PREFIX_TARGET}/include" \
+    LDFLAGS="-L${PREFIX_TARGET}/lib"
 fi
 make -j`nproc` && make install
 
 cd "${BUILD_DIR}/windows/gettext-0.20.2-build"
 if [ ! -f "Makefile" ]; then
-    ${SOURCE_DIR}/gettext-0.20.2/configure \
-    --host="${HOST_CC}"                    \
-    --build="${BUILD}"                     \
-    --disable-threads                      \
-    --enable-static                        \
-    --disable-rpath                        \
-    --prefix "${PREFIX_TARGET}"            \
-    CFLAGS="-I${PREFIX_TARGET}/include"    \
-    LDFLAGS="-L${PREFIX_TARGET}/lib"       \
-    CXXFLAGS="-I${PREFIX_TARGET}/include"
+    ${SOURCE_DIR}/gettext-0.20.2/configure  \
+    --host="${HOST_CC}"                     \
+    --build="${BUILD}"                      \
+    --disable-threads                       \
+    --enable-static                         \
+    --disable-rpath                         \
+    --prefix "${PREFIX_TARGET}"             \
+    CFLAGS="-O3 -I${PREFIX_TARGET}/include"   \
+    CXXFLAGS="-O3 -I${PREFIX_TARGET}/include" \
+    LDFLAGS="-L${PREFIX_TARGET}/lib"
 fi
 make -j`nproc` && make install
 
@@ -313,7 +313,10 @@ if [ ! -f "Makefile" ]; then
     --disable-shared                     \
     --enable-static                      \
     --with-gmp-prefix="${PREFIX_TARGET}" \
-    --prefix="${PREFIX_TARGET}"
+    --prefix="${PREFIX_TARGET}"          \
+    CFLAGS="-O3 -I${PREFIX_TARGET}/include"   \
+    CXXFLAGS="-O3 -I${PREFIX_TARGET}/include" \
+    LDFLAGS="-L${PREFIX_TARGET}/lib"
 fi
 make -j`nproc` && make install
 
@@ -322,42 +325,42 @@ make -j`nproc` && make install
 
 cd "${BUILD_DIR}/windows/binutils-2.40-build"
 if [ ! -f "Makefile" ]; then
-    ${SOURCE_DIR}/binutils-2.40/configure \
-    --host="${HOST_CC}"                   \
-    --build="${BUILD}"                    \
-    --target="${TARGET}"                  \
-    --prefix="${PREFIX_TARGET}"           \
-    --with-gmp="${PREFIX_TARGET}"         \
-    --with-mpfr="${PREFIX_TARGET}"        \
-    --with-mpc="${PREFIX_TARGET}"         \
-    CFLAGS="-I${PREFIX_TARGET}/include"   \
-    LDFLAGS="-L${PREFIX_TARGET}/lib"      \
-    CXXFLAGS="-I${PREFIX_TARGET}/include"
+    ${SOURCE_DIR}/binutils-2.40/configure     \
+    --host="${HOST_CC}"                       \
+    --build="${BUILD}"                        \
+    --target="${TARGET}"                      \
+    --prefix="${PREFIX_TARGET}"               \
+    --with-gmp="${PREFIX_TARGET}"             \
+    --with-mpfr="${PREFIX_TARGET}"            \
+    --with-mpc="${PREFIX_TARGET}"             \
+    CFLAGS="-O3 -I${PREFIX_TARGET}/include"   \
+    CXXFLAGS="-O3 -I${PREFIX_TARGET}/include" \
+    LDFLAGS="-L${PREFIX_TARGET}/lib"
 fi
 make -j`nproc` && make install-strip
 
 rm -rf ${BUILD_DIR}/windows/gcc-13.1.0-build/*
 cd "${BUILD_DIR}/windows/gcc-13.1.0-build"
-${SOURCE_DIR}/gcc-13.1.0/configure        \
-    --prefix="${PREFIX_TARGET}"           \
-    --build="${BUILD}"                    \
-    --host="${HOST_CC}"                   \
-    --target="${TARGET}"                  \
-    --with-gmp="${PREFIX_TARGET}"         \
-    --with-mpfr="${PREFIX_TARGET}"        \
-    --with-mpc="${PREFIX_TARGET}"         \
-    --disable-multilib                    \
-    --disable-shared                      \
-    --enable-static                       \
-    --disable-nls                         \
-    --enable-languages=c,c++              \
-    --with-cpu=cortex-a7                  \
-    --with-fpu=neon-vfpv4                 \
-    --with-float=hard                     \
-    --with-newlib                         \
-    --without-headers                     \
-    CFLAGS="-I${PREFIX_TARGET}/include"   \
-    CXXFLAGS="-I${PREFIX_TARGET}/include" \
+${SOURCE_DIR}/gcc-13.1.0/configure            \
+    --prefix="${PREFIX_TARGET}"               \
+    --build="${BUILD}"                        \
+    --host="${HOST_CC}"                       \
+    --target="${TARGET}"                      \
+    --with-gmp="${PREFIX_TARGET}"             \
+    --with-mpfr="${PREFIX_TARGET}"            \
+    --with-mpc="${PREFIX_TARGET}"             \
+    --disable-multilib                        \
+    --disable-shared                          \
+    --enable-static                           \
+    --disable-nls                             \
+    --enable-languages=c,c++                  \
+    --with-cpu=cortex-a7                      \
+    --with-fpu=neon-vfpv4                     \
+    --with-float=hard                         \
+    --with-newlib                             \
+    --without-headers                         \
+    CFLAGS="-O3 -I${PREFIX_TARGET}/include"   \
+    CXXFLAGS="-O3 -I${PREFIX_TARGET}/include" \
     LDFLAGS="-L${PREFIX_TARGET}/lib"
 make -j`nproc` && make install-strip
 
@@ -398,7 +401,7 @@ cd "${BUILD_DIR}/windows/gcc-13.1.0-build"
     --with-fpu=neon-vfpv4                 \
     --with-float=hard                     \
     --with-newlib                         \
-    CFLAGS="-I${PREFIX_TARGET}/include"   \
-    CXXFLAGS="-I${PREFIX_TARGET}/include" \
+    CFLAGS="-O3 -I${PREFIX_TARGET}/include"   \
+    CXXFLAGS="-O3 -I${PREFIX_TARGET}/include" \
     LDFLAGS="-L${PREFIX_TARGET}/lib"
 make -j`nproc` && make install-strip
