@@ -3,7 +3,7 @@
 # Install packages:
 # pacman -S git texinfo
 # pacman -S docbook-xsl
-# pacman -S xmlto man
+# pacman -S xmlto man ncurses-devel isl-devel python-devel
 
 # Importan note:
 # Due to libexpat tarball has a problem
@@ -299,28 +299,28 @@ make -j`nproc` && make install-strip
 mkdir_ifnotexist "${BUILD_DIR}/gdb"
 cd "${BUILD_DIR}/gdb"
 if [ ! -f "Makefile" ]; then
-    ${SOURCE_DIR}/gdb/configure     \
-    --prefix="${PREFIX_TARGET}"     \
-    --target="${TARGET}"            \
-    --with-gnu-ld                   \
-    --enable-plugins                \
-    --enable-tui                    \
-    --with-pkgversion=Linaro_GDB-2019.12 \
-    --disable-gas                   \
-    --disable-binutils              \
-    --disable-ld                    \
-    --disable-gold                  \
-    --disable-gprof                 \
-    --disable-tui                   \
-    --disable-threads               \
-    --disable-shared                \
-    --enable-static                 \
-    --with-gmp="${PREFIX_TARGET}"   \
-    --with-mpfr="${PREFIX_TARGET}"  \
-    --with-mpc="${PREFIX_TARGET}"   \
-    --with-expat="${PREFIX_TARGET}" \
+    ${SOURCE_DIR}/gdb/configure      \
+    --prefix="${PREFIX_TARGET}"      \
+    --target="${TARGET}"             \
+    --enable-64-bit-bfd              \
+    --disable-binutils               \
+    --disable-gas                    \
+    --disable-ld                     \
+    --disable-gold                   \
+    --disable-gprof                  \
+    --disable-werror                 \
+    --disable-shared                 \
+    --enable-static                  \
+    --disable-win32-registry         \
+    --disable-rpath                  \
+    --with-system-gdbinit="${PREFIX_TARGET}/etc/gdbinit" \
+    --with-gmp="${PREFIX_TARGET}"    \
+    --with-mpfr="${PREFIX_TARGET}"   \
+    --with-mpc="${PREFIX_TARGET}"    \
+    --with-expat="${PREFIX_TARGET}"  \
+    --with-iconv="${PREFIX_TARGET}"  \
     CFLAGS="-D_GLIBCXX_DEFINE_STDEXCEPT_COPY_OPS -static-libgcc -static-libstdc++ -Wno-error -I${PREFIX_TARGET}/include" \
     CXXFLAGS="-D_GLIBCXX_DEFINE_STDEXCEPT_COPY_OPS -static-libgcc -static-libstdc++ -Wno-error -I${PREFIX_TARGET}/include" \
-    LDFLAGS="-L${PREFIX_TARGET}/lib"
+    LDFLAGS="-L${PREFIX_TARGET}/lib -liconv"
 fi
 make -j`nproc` && make install-strip
