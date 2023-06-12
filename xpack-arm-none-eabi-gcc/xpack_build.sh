@@ -280,6 +280,7 @@ if [ ! -f "Makefile" ]; then
     --with-gmp="${PREFIX_TARGET}"  \
     --with-mpfr="${PREFIX_TARGET}" \
     --with-mpc="${PREFIX_TARGET}"  \
+    --without-isl                  \
     --with-cpu=cortex-a7           \
     --with-fpu=neon-vfpv4          \
     --with-float=hard              \
