@@ -41,7 +41,7 @@
     $ cd libexpat_extra_build
     $ wget https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/src/libexpat.tar.xz
     $ tar -xf libexpat.tar.xz
-    $ cd libexpat_extra_build/libexpat/expat
+    $ cd libexpat/expat
     $ ./configure --prefix=$PREFIX_EXPAT --host=x86_64-w64-mingw32 --with-docbook --disable-shared --enable-static
     $ make -j`nproc`
     $ make install
